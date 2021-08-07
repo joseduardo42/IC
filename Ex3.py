@@ -31,7 +31,7 @@ y = fsolve(func, [0, 0])
 result_vc1 = [] #vetor que armazena a tensão no capacitor 1
 result_vc2 = [] #vetor que armazena a tensão no capacitor 2
 result_ic1 = [] #vetor que armazena a corrente no capacitor 1
-result_ic2 = [] #vetor que armazena a corrente no capacitor 1
+result_ic2 = [] #vetor que armazena a corrente no capacitor 2
 
 #correntes nos capacitores
 ic10 = float (y[0]-y[1])

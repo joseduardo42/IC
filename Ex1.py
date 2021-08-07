@@ -32,26 +32,24 @@ result_vc[0] = vc0
 result_ic[0] = i0
 i=0
 for t in t_sim:
-        #contador para definir a posição dos itens no vetor
-        i += 1
-        vs = (100*np.sin(w*t)) #tensão da fonte no tempo desejado
-
-        #sistema a ser resolvido a cada instante t        
-        A2 = np.array([[R1, -R1, 0],
-            [-R1, (R1 + R2 + R3), 1],
-            [0, -deltat/(2*C), 1]], np.float64)
-        b = np.array([[vs], [0], [vc0 + i0*deltat/(2*C)]], np.float64)
-
-        x = linalg.solve(A2, b) #sistema algébrico linear a ser calculado a cada t
-        
-        #corrente no capacitor a ser usada na próxima iteração
-        ic = float (x[1])
-        result_ic[i] = ic
-        i0 = ic
-        #tensão no capacitor a ser usada na próxima iteração
-        vc = float (x[2])
-        result_vc[i] = vc
-        vc0 = vc
+    #contador para definir a posição dos itens no vetor
+    i += 1
+    vs = (100*np.sin(w*t)) #tensão da fonte no tempo desejado
+    #sistema a ser resolvido a cada instante t        
+    A2 = np.array([[R1, -R1, 0],
+        [-R1, (R1 + R2 + R3), 1],
+        [0, -deltat/(2*C), 1]], np.float64)
+    b = np.array([[vs], [0], [vc0 + i0*deltat/(2*C)]], np.float64)
+    x = linalg.solve(A2, b) #sistema algébrico linear a ser calculado a cada t
+    
+    #corrente no capacitor a ser usada na próxima iteração
+    ic = float (x[1])
+    result_ic[i] = ic
+    i0 = ic
+    #tensão no capacitor a ser usada na próxima iteração
+    vc = float (x[2])
+    result_vc[i] = vc
+    vc0 = vc
 
 print (result_vc)
 print (result_ic)
