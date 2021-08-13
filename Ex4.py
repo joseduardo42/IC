@@ -4,11 +4,10 @@ from numpy.linalg import inv
 from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
 
+#initial params
 f = 15.91549
 deltat = 1/(20 * f)
 tf = 5*1/f
-
-#initial params
 w = 100
 h = 2
 Ra = 10**3
@@ -58,23 +57,24 @@ y = fsolve(circuit_equations, amplitudes_guess)
 print (y)
 
 #transient analysis
-t_sim = np.arange(0, tf+deltat, deltat)#tempo de simulação
-#vetores para armazenar valores de tensão
+
+t_sim = np.arange(0, tf+deltat, deltat)#time simulation
+#vectors to storage results
 results_va = []
 results_vb = []
 results_vc2 = []
 
-#cálculo das formas de onda do HB
+#waveforms of HB
 for t in t_sim:
-    Va_tempo =  y[0] + y[1]*sin(w*t) + y[2]*np.cos(w*t) + y[3]*sin(2*w*t) + y[4]*cos(2*w*t) 
-    Vb_tempo = y[5] + y[6]*sin(w*t) + y[7]*cos(w*t) + y[8]*sin(2*w*t) + y[9]*cos(2*w*t) 
-    Vc_tempo = y[10] + y[11]*sin(w*t) + y[12]*cos(w*t) + y[13]*sin(2*w*t) + y[14]*cos(2*w*t) 
+    Va_time =  y[0] + y[1]*sin(w*t) + y[2]*np.cos(w*t) + y[3]*sin(2*w*t) + y[4]*cos(2*w*t) 
+    Vb_time = y[5] + y[6]*sin(w*t) + y[7]*cos(w*t) + y[8]*sin(2*w*t) + y[9]*cos(2*w*t) 
+    Vc_time = y[10] + y[11]*sin(w*t) + y[12]*cos(w*t) + y[13]*sin(2*w*t) + y[14]*cos(2*w*t) 
 
-    Vc2_tempo = (y[5] - y[10]) + (y[6]- y[11])*sin(w*t) + (y[7] - y[12])*cos(w*t) + (y[8] - y[13])*sin(2*w*t) + (y[9] - y[14])*cos(2*w*t) 
+    Vc2_time = (y[5] - y[10]) + (y[6]- y[11])*sin(w*t) + (y[7] - y[12])*cos(w*t) + (y[8] - y[13])*sin(2*w*t) + (y[9] - y[14])*cos(2*w*t) 
     
-    results_va.append (Va_tempo)
-    results_vb.append (Vb_tempo)
-    results_vc2.append (Vc2_tempo)
+    results_va.append (Va_time)
+    results_vb.append (Vb_time)
+    results_vc2.append (Vc2_time)
 
 plt.plot (t_sim, results_va)
 plt.title ('Tensão nó A')
