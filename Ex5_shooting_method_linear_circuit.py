@@ -14,7 +14,7 @@ deltat = 1/(20 * f)
 tf = 1/f
 t0 = 0
 
-t_sim = np.arange(0, tf+deltat, deltat) #vector to transient in shooting method
+t_sim = np.arange(deltat, tf+deltat, deltat) #vector to transient in shooting method
 t_plot = np.arange(0, tf+deltat, deltat) #vector with positions to plot
 #global vector
 result_vc = []
