@@ -27,7 +27,7 @@ C1 = 10**(-11)
 C2 = 10**(-6)
 
 #The matrix from the mesh analysis in circuit. Analysis in t0
-def func(x):
+def func(x): 
     return[ Ra*x[0] + Vc10,
                  -Vc10 + Vc20 + x[1]*RL]
 
