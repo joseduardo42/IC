@@ -5,8 +5,15 @@ from numpy.core.function_base import linspace
 from scipy.optimize import fsolve, root
 import matplotlib.pyplot as plt
 from math import pi
-
 from Ex3 import t_plot__aux, result_vc1_transi,aux, result_vc2_transi
+
+"""
+This code have as objective the shooting method analysis of a non linear
+circuit. To calculate the harmonic balance, it is necessary to provide the initial
+conditions in the components of circuits and also the equations of circuit.
+The transient analysis is made with the initial conditions obtained with the
+shooting method, so the transient is the steady-state
+"""
 
 #ICs
 Ra = 10**3
