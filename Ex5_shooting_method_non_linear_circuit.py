@@ -28,8 +28,8 @@ tf = (1/f)
 final_resnorm = 0
 
 #time domain
-t_sim = np.arange(deltat, tf+deltat, deltat)
-t_plot = np.arange(0, tf+deltat, deltat)
+t_sim = np.arange(deltat, tf, deltat)
+t_plot = np.arange(0, tf, deltat)
 result_vc1 = np.zeros(len(t_plot))
 result_vc2 = np.zeros(len(t_plot))
 result_ic1 = np.zeros(len(t_plot))
