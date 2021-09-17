@@ -3,6 +3,14 @@ import numpy as np
 from numpy import linalg, pi
 from scipy.optimize.minpack import fsolve
 
+"""
+This code have as objective the shooting method analysis of linear
+circuit. To calculate the harmonic balance, it is necessary to provide the initial
+conditions in the components of circuits and also the equations of circuit.
+The transient analysis is made with the initial conditions obtained with the
+shooting method, so the transient is the steady-state
+"""
+
 #ICs
 R1 = 1
 R2 = 2
