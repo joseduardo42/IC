@@ -5,7 +5,7 @@ from numpy.core.function_base import linspace
 from scipy.optimize import fsolve, root
 import matplotlib.pyplot as plt
 from math import pi
-from Ex3 import t_plot__aux, result_vc1_transi,aux, result_vc2_transi
+from Ex3_transien_nonlinear_circuit import t_plot__aux, result_vc1_transi,aux, result_vc2_transi
 
 """
 This code have as objective the shooting method analysis of a non linear
@@ -28,8 +28,8 @@ tf = (1/f)
 final_resnorm = 0
 
 #time domain
-t_sim = np.arange(deltat, tf, deltat)
-t_plot = np.arange(0, tf, deltat)
+t_sim = np.arange(deltat, tf+deltat, deltat)
+t_plot = np.arange(0, tf+deltat, deltat)
 result_vc1 = np.zeros(len(t_plot))
 result_vc2 = np.zeros(len(t_plot))
 result_ic1 = np.zeros(len(t_plot))
