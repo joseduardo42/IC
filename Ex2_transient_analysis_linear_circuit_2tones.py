@@ -3,10 +3,11 @@ import numpy as np
 from numpy import linalg, pi
 
 """
-This code have as objective the transient analysis of a non linear circuit.
-To calculate the transient analysis, it is necessary to provide the initial
-conditions in the components of circuits and also the equations of circuit.
-The simulation depends on previous conditions in each new interation
+This code have as objective the transient analysis of a linear circuit with
+two tones source.To calculate the transient analysis, it is necessary to 
+provide the initialconditions in the components of circuits and also the 
+equations of circuit.The simulation depends on previous conditions in each
+new interation.
 """
 
 #ICs
