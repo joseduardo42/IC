@@ -4,11 +4,19 @@ from numpy.linalg import inv
 from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
 
+"""
+Thia code have as objective the harmonic balance analysis of a non linear
+circuit. To calculate the harmonic balance, it is necessary to provide the initial
+conditions in the components of circuits and also the equations of circuit.
+The simulation of transient depends of the wave amplitudes obtained in the
+harmonic balance
+"""
+
 #initial params
-f = 15.91549
+f = 10**9
 deltat = 1/(20 * f)
 tf = 5*1/f
-w = 100
+w = 2*pi*f
 h = 2
 Ra = 10**3
 C1 = 10*10**(-12)
@@ -41,7 +49,7 @@ def circuit_equations(V):
         Vc[i] = V[10+i]
 
     #definition of amplitude source and Va in time-domain
-    A_amplitude = np.array([0, 0, A, 0, 0])
+    A_amplitude = np.array([0, A, 0, 0, 0])
     non_linear = F@Va
     vc2 = Vb - Vc
 
@@ -75,12 +83,13 @@ for t in t_sim:
     results_vb.append (Vb_time)
     results_vc.append (Vc_time)
 
-#plt.plot (t_sim, results_va)
-#plt.title ('Corrente da fonte controlada')
-#plt.ylabel ('(V)')
-#plt.xlabel ('Tempo (milisegundos)')
-#plt.grid()
-#plt.show ()
+#plot results
+plt.plot (t_sim, results_vb)
+plt.title ('Corrente da fonte controlada')
+plt.ylabel ('(V)')
+plt.xlabel ('Tempo (milisegundos)')
+plt.grid()
+plt.show ()
 
 #plt.plot (t_sim, results_vb)
 #plt.title ('Tensão no Capacitor 1')
