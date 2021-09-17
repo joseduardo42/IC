@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy import linalg, pi
-
+ 
 """
 This code have as objective the transient analysis of a linear circuit with
 two tones source.To calculate the transient analysis, it is necessary to 
