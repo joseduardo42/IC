@@ -5,6 +5,13 @@ from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
 from math import pi
 
+"""
+This code have as objective the transient analysis of a non linear circuit.
+To calculate the transient analysis, it is necessary to provide the initial
+conditions in the components of circuits and also the equations of circuit.
+The simulation depends on previous conditions in each new interation
+"""
+
 #inserir as CIs
 Ra = 10**3
 RL = 50
