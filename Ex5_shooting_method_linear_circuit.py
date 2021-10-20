@@ -15,9 +15,9 @@ shooting method, so the transient is the steady-state
 R1 = 1
 R2 = 2
 R3 = 3
-C = 1
+C = 10**-9
 A = 100
-f = 15.9155
+f = 10**9
 deltat = 1/(20 * f)
 tf = (1/f)
 t0 = 0
