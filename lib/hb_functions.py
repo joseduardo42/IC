@@ -2,8 +2,6 @@ from math import sin, cos, pi
 import numpy as np
 from numpy.linalg import inv
 
-from Ex4_harmonicbalance_nonlin_circ import F_inv
-
 h = 2
 
 def F(f):

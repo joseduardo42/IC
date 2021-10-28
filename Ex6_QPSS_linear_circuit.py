@@ -3,7 +3,7 @@ import numpy as np
 from math import sin, cos, pi
 from numpy import linalg, pi
 from scipy.optimize.minpack import fsolve
-from lib.hb_functions import F, F_inv, omega
+from lib.hb_functions import  omega
  
 """
 This code have as objective the transient analysis of a linear circuit with
@@ -27,23 +27,22 @@ w2 = 2*pi*f2
 deltat = 1/(20 * f1)
 tf = (1/f1)
 vs = 0
-vc0 = 20
+
 
 t_sim = np.arange(0, tf+deltat, deltat)#time simulation
 #vectors to storage results
 results_va = []
 results_vb = []
 results_vc = []
+results_vc1 = []
+result_vc_frequency = np.zeros(len(t_sim))
 
-omega_lowerfreq = omega(w2)
-
+omega = np.zeros((5,5))
+omega[1, 2] = -w2; omega[2, 1] = w2; omega[3, 4] = -2*w2; omega[4, 3] = 2*w2
 #Define the system equations
 def QPSS(y):
-
-  def circuit_equations(V):
-      results_va = []
-      results_vb = []
-      results_vc = []
+    
+  def frequency_method(V):
 
       #vector of unknowns
       Va = np.zeros(5)
@@ -66,19 +65,50 @@ def QPSS(y):
 
   amplitudes_guess = np.zeros(15)
 
-  y = fsolve(circuit_equations, amplitudes_guess)
+  y = fsolve(frequency_method, amplitudes_guess)
   
   for t in t_sim:
     Va_time =  y[0] +  y[1]*sin(w1*t)  + y[2]*cos(w1*t)  + y[3]*sin(2*w1*t)  + y[4]*cos(2*w1*t) 
     Vb_time =  y[5] +  y[6]*sin(w1*t)  + y[7]*cos(w1*t)  + y[8]*sin(2*w1*t)  + y[9]*cos(2*w1*t)
     Vc_time =  y[10] + y[11]*sin(w1*t) + y[12]*cos(w1*t) + y[13]*sin(2*w1*t) + y[14]*cos(2*w1*t)
-  
+    
   results_va.append (Va_time)
   results_vb.append (Vb_time)
   results_vc.append (Vc_time)
+  results_vc1.append (Vb_time - Vc_time)
 
+  result_vc_frequency = []
+  vs = Vm1*np.sin(2*pi*f1*0)
 
-  return[y]
+  vc0 = y[0]
+  A1 = np.array([[R1, -R1],
+                  [-R1, (R1 + R2 + R3)]], np.float64)
+  b = np.array([[vs], [-vc0]], np.float64)
+  lin_SM_t0 = linalg.solve(A1,b)
+  result_vc_frequency[0] = vc0
+  i0 = float (lin_SM_t0[1]) #current i(0)
 
-x = fsolve()
+  i = 1
+  #transient
+  for t in t_sim:
+      vs = Vm1*np.sin(2*pi*f1*t) #voltage source
+      
+      #linear system to solve in each t  
+      A2 = np.array([[R1, -R1, 0],
+          [-R1, (R1 + R2 + R3), 1],
+          [0, -deltat/(2*C), 1]], np.float64)
+          
+      b = np.array([[vs], [0], [vc0 + i0*deltat/(2*C)]], np.float64)
+      z = linalg.solve(A2, b) #solution of system in z
+      #capacitor current 
+      ic = float (z[1])
+      i0 = ic
+      #capacitor voltage
+      vc = float (z[2])
+      result_vc_frequency[i] = vc
+      vc0 = vc
+      i+=1
 
+  return[results_vc1[-1] - result_vc_frequency[-1]]
+
+x = fsolve(QPSS, 30)
