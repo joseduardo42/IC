@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from math import sin, cos, pi
 from numpy import linalg, pi
 from scipy.optimize.minpack import fsolve
@@ -14,23 +15,12 @@ f1 = 100
 w1 = 2*pi*f1
 f2 = 8
 w2 = 2*pi*f2
-deltat = 1/(20 * f1)
+deltat = 1/(100 * f1)
 tf = (1/f1)
-vs = 0
 h = 2
 
-F = np.array([[1, sin(2*pi*0*1/(2*h+1)), cos((2*pi*0*1/(2*h+1))), sin(2*pi*0*2/(2*h+1)), cos((2*pi*0*2)/(2*h+1))],
-              [1, sin(2*pi*1*1/(2*h+1)), cos((2*pi*1*1/(2*h+1))), sin(2*pi*1*2/(2*h+1)), cos((2*pi*1*2)/(2*h+1))],
-              [1, sin(2*pi*2*1/(2*h+1)), cos((2*pi*2*1/(2*h+1))), sin(2*pi*2*2/(2*h+1)), cos((2*pi*2*2)/(2*h+1))],
-              [1, sin(2*pi*3*1/(2*h+1)), cos((2*pi*3*1/(2*h+1))), sin(2*pi*3*2/(2*h+1)), cos((2*pi*3*2)/(2*h+1))],
-              [1, sin(2*pi*4*1/(2*h+1)), cos((2*pi*4*1/(2*h+1))), sin(2*pi*4*2/(2*h+1)), cos((2*pi*4*2)/(2*h+1))]])
-
-t_sim = np.arange(0, tf+deltat, deltat)#time simulation
 #vectors to storage results
-results_va = []
-results_vb = []
 results_vc = []
-capacitor_voltage = []
 shooting_voltage = np.zeros(5)
 
 omega = np.zeros((5,5))
@@ -38,7 +28,8 @@ omega[1, 2] = -w2; omega[2, 1] = w2; omega[3, 4] = -2*w2; omega[4, 3] = 2*w2
 
 #Define the system equations
 def QPSS(V_shooting):
-  
+
+################## frequency #####################  
   def frequency_method(V):
 
     #vector of unknowns
@@ -67,11 +58,18 @@ def QPSS(V_shooting):
 ################## shooting #####################
   for i in range(2*h+1):
 
-    #analysis in t0
+    t_sim = np.arange(i*(tf+deltat), (i+1)*tf+deltat, deltat)
+    #analysis in t0 = 0, T1, ..., (2N+1)T1
 
     #vc0 unknown of shooting function (5 unknowns)
     vc0 = V_shooting[0+i]
-    vs = 0
+    
+    #adjustment of vc0 for each interaction
+    if (i > 0):
+      vc0 = vc0f
+      
+    vs = Vm1*np.sin(2*pi*f1*float(t_sim[0]))
+
     A1 = np.array([[R1, -R1],
                     [-R1, (R1 + R2 + R3)]], np.float64)
 
@@ -81,12 +79,10 @@ def QPSS(V_shooting):
 
     shooting_voltage[0+i] = vc0
 
-    capacitor_voltage.append (vc0)
-
     i0 = float (lin_SM_t0[1]) #current i(0)
     i = 1
-
-    for t in t_sim:
+    
+    for t in np.delete(t_sim, 0):
         vs = Vm1*np.sin(2*pi*f1*t) #voltage source
         
         #linear system to solve in each t  
@@ -103,17 +99,32 @@ def QPSS(V_shooting):
         
         #capacitor voltage
         vc = float (z[2])
-        capacitor_voltage.append (vc)
-        
-        vc0 = vc
-        i+=1
 
-    #vc0 to 2N+1 transient
-    vc0 = capacitor_voltage[-1]
-  
+        vc0 = vc
+        vc0f = vc
+
+        i+=1    
+
+    print (vc0f)
   return np.concatenate([
     shooting_voltage - (frequency_voltage[5:10] - frequency_voltage[10:15])
     ])
 
+#solve QPSS function
 amplitudes_guess = np.zeros(5)
-x = fsolve(QPSS, amplitudes_guess)
+y = fsolve(QPSS, amplitudes_guess)
+
+#waveforms of QPSS
+t_sim = np.arange(0, 1/f2+1/(100 * f2), deltat)
+for t in 2*t_sim:
+    Vc_time =  y[0] +  y[1]*sin(w2*t)  + y[2]*cos(w2*t)  + y[3]*sin(2*w2*t)  + y[4]*cos(2*w2*t) 
+    
+    results_vc.append (Vc_time)
+
+#plot results
+plt.plot (t_sim, results_vc)
+plt.title ('Tensão no capacitor')
+plt.ylabel ('(V)')
+plt.xlabel ('Tempo (milisegundos)')
+plt.grid()
+plt.show ()
