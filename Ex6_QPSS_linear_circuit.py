@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from math import sin, cos, pi
-from numpy import linalg, pi
+from numpy import concatenate, linalg, pi
 from scipy.optimize.minpack import fsolve
 
 #ICs
@@ -16,49 +16,46 @@ w1 = 2*pi*f1
 f2 = 8
 w2 = 2*pi*f2
 deltat = 1/(100 * f1)
-tf = (1/f1)
+T1 = (1/f1)
+T2 = (1/f2)
 h = 2
 
+#frequency -> time
+gamma_inv = np.array([[1, sin(2*pi*0*1/(2*h+1) ), cos((2*pi*0*1/(2*h+1))), sin(2*pi*0*2/(2*h+1)), cos((2*pi*0*2)/(2*h+1))],
+              [1, sin(2*pi*1*1/(2*h+1)), cos((2*pi*1*1/(2*h+1))), sin(2*pi*1*2/(2*h+1)), cos((2*pi*1*2)/(2*h+1))],
+              [1, sin(2*pi*2*1/(2*h+1)), cos((2*pi*2*1/(2*h+1))), sin(2*pi*2*2/(2*h+1)), cos((2*pi*2*2)/(2*h+1))],
+              [1, sin(2*pi*3*1/(2*h+1)), cos((2*pi*3*1/(2*h+1))), sin(2*pi*3*2/(2*h+1)), cos((2*pi*3*2)/(2*h+1))],
+              [1, sin(2*pi*4*1/(2*h+1)), cos((2*pi*4*1/(2*h+1))), sin(2*pi*4*2/(2*h+1)), cos((2*pi*4*2)/(2*h+1))]])
+
+#frequency -> time, one period ahead
+gamma_inv_T1 = np.array([[1, sin(2*pi*0*1/(2*h+1) + pi/5), cos((2*pi*0*1/(2*h+1)) + pi/5), sin(2*pi*0*2/(2*h+1) + pi/5), cos((2*pi*0*2)/(2*h+1) + pi/5)],
+                         [1, sin(2*pi*1*1/(2*h+1) + pi/5), cos((2*pi*1*1/(2*h+1)) + pi/5), sin(2*pi*1*2/(2*h+1) + pi/5), cos((2*pi*1*2)/(2*h+1) + pi/5)],
+                         [1, sin(2*pi*2*1/(2*h+1) + pi/5), cos((2*pi*2*1/(2*h+1)) + pi/5), sin(2*pi*2*2/(2*h+1) + pi/5), cos((2*pi*2*2)/(2*h+1) + pi/5)],
+                         [1, sin(2*pi*3*1/(2*h+1) + pi/5), cos((2*pi*3*1/(2*h+1)) + pi/5), sin(2*pi*3*2/(2*h+1) + pi/5), cos((2*pi*3*2)/(2*h+1) + pi/5)],
+                         [1, sin(2*pi*4*1/(2*h+1) + pi/5), cos((2*pi*4*1/(2*h+1)) + pi/5), sin(2*pi*4*2/(2*h+1) + pi/5), cos((2*pi*4*2)/(2*h+1) + pi/5)]])
+
+#time -> frequency
+gamma = linalg.inv(gamma_inv)
+
+#delay matrix
+D = gamma_inv_T1@gamma
 #vectors to storage results
 results_vc = []
 shooting_voltage = np.zeros(5)
-
-omega = np.zeros((5,5))
-omega[1, 2] = -w2; omega[2, 1] = w2; omega[3, 4] = -2*w2; omega[4, 3] = 2*w2
+frequency_voltage = np.zeros(5)
 
 #Define the system equations
 def QPSS(V_shooting):
 
-################## frequency #####################  
-  def frequency_method(V):
-
-    #vector of unknowns
-    Va = np.zeros(5)
-    Vb = np.zeros(5)
-    Vc = np.zeros(5)
-    for i in range(5):
-      Va[i] = V[i]
-      Vb[i] = V[5+i]
-      Vc[i] = V[10+i]
-
-    #definition of amplitude source and Va in time-domain
-    A_amplitude = np.array([0, Vm2, 0, 0, 0])
-    Va_aux = Va - A_amplitude
-    vc1 = Vb - Vc
-
-    return np.concatenate([
-        Va_aux/R1 + (Va_aux - Vb)/R2,
-        (Vb - Va_aux)/R2 - C*omega@vc1,
-        C*omega@vc1 - Vc/R3
-    ])
-      
-  amplitudes_guess = np.zeros(15)
-  frequency_voltage = np.array(fsolve(frequency_method, amplitudes_guess))
-
 ################## shooting #####################
+################## transient (5) #####################
   for i in range(2*h+1):
+    t_sim = np.arange(i*T1, (i+1)*T1, deltat)
 
-    t_sim = np.arange(i*(tf+deltat), (i+1)*tf+deltat, deltat)
+    if (t_sim[-1] != T1):
+      t_sim = np.arange(i*T1, (i+1)*T1+deltat, deltat)
+    
+    
     #analysis in t0 = 0, T1, ..., (2N+1)T1
 
     #vc0 unknown of shooting function (5 unknowns)
@@ -66,7 +63,7 @@ def QPSS(V_shooting):
     
     #adjustment of vc0 for each interaction
     if (i > 0):
-      vc0 = vc0f
+      vc0 = vc0s
       
     vs = Vm1*np.sin(2*pi*f1*float(t_sim[0]))
 
@@ -101,19 +98,34 @@ def QPSS(V_shooting):
         vc = float (z[2])
 
         vc0 = vc
-        vc0f = vc
+        vc0s = vc
 
         i+=1    
+        
+  ################## frequency #####################
+  def frequency_method (V):
 
-    print (vc0f)
+    Vc = np.zeros(5)
+    for i in range(5):
+        Vc[i] = V[i]
+    #Vc delayed    
+    frequency_voltage1 = D@Vc
+
+    return concatenate([frequency_voltage1])
+
+  amplitudes_guess = np.zeros(5)
+  frequency_voltage = fsolve(frequency_method, amplitudes_guess)
+  print (frequency_voltage)
+
+  #print (shooting_voltage)
   return np.concatenate([
-    shooting_voltage - (frequency_voltage[5:10] - frequency_voltage[10:15])
+    shooting_voltage - frequency_voltage
     ])
 
 #solve QPSS function
 amplitudes_guess = np.zeros(5)
 y = fsolve(QPSS, amplitudes_guess)
-
+print (y)
 #waveforms of QPSS
 t_sim = np.arange(0, 1/f2+1/(100 * f2), deltat)
 for t in 2*t_sim:
