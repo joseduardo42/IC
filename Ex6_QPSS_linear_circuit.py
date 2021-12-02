@@ -21,18 +21,18 @@ T = (1/f2)
 h = 2
 
 #frequency -> time
-gamma_inv = np.array([[1, sin(2*pi*1*1/(2*h+1)), cos(2*pi*0*1/(2*h+1)), sin(2*pi*0*2/(2*h+1)), cos((2*pi*0*2)/(2*h+1))],
+gamma_inv = np.array([[1, sin(2*pi*0*1/(2*h+1)), cos(2*pi*0*1/(2*h+1)), sin(2*pi*0*2/(2*h+1)), cos((2*pi*0*2)/(2*h+1))],
                       [1, sin(2*pi*1*1/(2*h+1)), cos(2*pi*1*1/(2*h+1)), sin(2*pi*1*2/(2*h+1)), cos((2*pi*1*2)/(2*h+1))],
                       [1, sin(2*pi*2*1/(2*h+1)), cos(2*pi*2*1/(2*h+1)), sin(2*pi*2*2/(2*h+1)), cos((2*pi*2*2)/(2*h+1))],
                       [1, sin(2*pi*3*1/(2*h+1)), cos(2*pi*3*1/(2*h+1)), sin(2*pi*3*2/(2*h+1)), cos((2*pi*3*2)/(2*h+1))],
                       [1, sin(2*pi*4*1/(2*h+1)), cos(2*pi*4*1/(2*h+1)), sin(2*pi*4*2/(2*h+1)), cos((2*pi*4*2)/(2*h+1))]])
 
 #frequency -> time, one period ahead
-gamma_inv_T1 = np.array([[1, sin(1*(2*pi*f2*0*(T+T1))), cos(1*(2*pi*f2*0*(T+T1))), sin(2*(2*pi*f2*0*(T+T1))), cos(2*(2*pi*f2*0*(T+T1)))],
-                         [1, sin(1*(2*pi*f2*1*(T+T1))), cos(1*(2*pi*f2*1*(T+T1))), sin(2*(2*pi*f2*1*(T+T1))), cos(2*(2*pi*f2*1*(T+T1)))],
-                         [1, sin(1*(2*pi*f2*2*(T+T1))), cos(1*(2*pi*f2*2*(T+T1))), sin(2*(2*pi*f2*2*(T+T1))), cos(2*(2*pi*f2*2*(T+T1)))],
-                         [1, sin(1*(2*pi*f2*3*(T+T1))), cos(1*(2*pi*f2*3*(T+T1))), sin(2*(2*pi*f2*3*(T+T1))), cos(2*(2*pi*f2*3*(T+T1)))],
-                         [1, sin(1*(2*pi*f2*4*(T+T1))), cos(1*(2*pi*f2*4*(T+T1))), sin(2*(2*pi*f2*4*(T+T1))), cos(2*(2*pi*f2*4*(T+T1)))]])
+gamma_inv_T1 = np.array([[1, sin(1*(2*pi*f2*(0*T/(2*h+1)+T1))), cos(1*(2*pi*f2*(0*T/(2*h+1)+T1))), sin(2*(2*pi*f2*(0*T/(2*h+1)+T1))), cos(2*(2*pi*f2*(0*T/(2*h+1)+T1)))],
+                         [1, sin(1*(2*pi*f2*(1*T/(2*h+1)+T1))), cos(1*(2*pi*f2*(1*T/(2*h+1)+T1))), sin(2*(2*pi*f2*(1*T/(2*h+1)+T1))), cos(2*(2*pi*f2*(1*T/(2*h+1)+T1)))],
+                         [1, sin(1*(2*pi*f2*(2*T/(2*h+1)+T1))), cos(1*(2*pi*f2*(2*T/(2*h+1)+T1))), sin(2*(2*pi*f2*(2*T/(2*h+1)+T1))), cos(2*(2*pi*f2*(2*T/(2*h+1)+T1)))],
+                         [1, sin(1*(2*pi*f2*(3*T/(2*h+1)+T1))), cos(1*(2*pi*f2*(3*T/(2*h+1)+T1))), sin(2*(2*pi*f2*(3*T/(2*h+1)+T1))), cos(2*(2*pi*f2*(3*T/(2*h+1)+T1)))],
+                         [1, sin(1*(2*pi*f2*(4*T/(2*h+1)+T1))), cos(1*(2*pi*f2*(4*T/(2*h+1)+T1))), sin(2*(2*pi*f2*(4*T/(2*h+1)+T1))), cos(2*(2*pi*f2*(4*T/(2*h+1)+T1)))]])
 
 #time -> frequency
 gamma = linalg.inv(gamma_inv)
@@ -42,8 +42,7 @@ D = gamma_inv_T1@gamma
 #vectors to storage results
 results_vc = []
 
-frequency_voltage = np.zeros(5)
-test = np.zeros(5)
+transient_result = np.zeros(5)
 
 #Define the system equations
 def QPSS(V_shooting):
@@ -56,13 +55,13 @@ def QPSS(V_shooting):
 ################## transient (5) #####################
 
   for i in range(2*h+1):
+
     t_sim = np.arange(i*T1, (i+1)*T1+deltat, deltat)
 
     if (t_sim[-1] != T1):
       t_sim = np.arange(i*T1, (i+1)*T1, deltat)
 
     #analysis in t0 = 0, T1, ..., (2N+1)T1
-    
 
     vc0 = shooting_voltage[i]
 
@@ -95,16 +94,16 @@ def QPSS(V_shooting):
         #capacitor voltage
         vc0 = float (z[2])
 
-    test[i] = vc0
+    transient_result[i] = vc0
 
   return np.concatenate([
-    test - D@shooting_voltage
+    transient_result - D@shooting_voltage
     ])
 
 #solve QPSS function
 amplitudes_guess = np.zeros(5)
 y = fsolve(QPSS, amplitudes_guess)
-#print (y)
+print (y)
 t_sim = np.arange(0, 5*1/f2 + 1/(100 * f2), 1/(100 * f2))
 
 for t in t_sim:

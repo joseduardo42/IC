@@ -22,7 +22,7 @@ f2 = 8
 deltat = 1/(100 * f1)
 tf = 16*(1/f1)
 vs = 0
-vc0 = 0
+vc0 = -0.01162895
 
 #The matrix from the mesh analysis in circuit
 A1 = np.array([[R1, -R1],
