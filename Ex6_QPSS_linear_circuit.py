@@ -39,17 +39,18 @@ gamma = linalg.inv(gamma_inv)
 
 #delay matrix
 D = gamma_inv_T1@gamma
+
 #vectors to storage results
 results_vc = []
 
 transient_result = np.zeros(5)
 
-#Define the system equations
 def QPSS(V_shooting):
+
   shooting_voltage = np.zeros(5)
   for j in range(5):
       shooting_voltage[j] = V_shooting[j]
-  #print (shooting_voltage)
+  print (shooting_voltage)
 
 ################## shooting #####################
 ################## transient (5) #####################
@@ -88,6 +89,7 @@ def QPSS(V_shooting):
         b = np.array([[vs], [0], [vc0 + i0*deltat/(2*C)]], np.float64)
 
         z = linalg.solve(A2, b) #solution of system in z
+
         #capacitor current 
         i0 = float (z[1])
 
