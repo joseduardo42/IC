@@ -19,10 +19,10 @@ Vm1 = 60
 Vm2 = 40
 f1 = 100
 f2 = 8
-deltat = 1/(20 * f1)
-tf = (1/f1)
+deltat = 1/(100 * f1)
+tf = 16*(1/f1)
 vs = 0
-vc0 = 20
+vc0 = 0
 
 #The matrix from the mesh analysis in circuit
 A1 = np.array([[R1, -R1],
@@ -32,7 +32,7 @@ b = np.array([[vs], [-vc0]], np.float64)
 x = linalg.solve(A1,b)
 
 i0 = float (x[1]) #current in t0, to use in interations in
-
+print (i0)
 t_sim = np.arange(deltat, tf+deltat, deltat) #time vector to simulation, without t0
 t_plot = np.arange(0, tf+deltat, deltat)  #vector to plot in each time of simulation
 
@@ -70,7 +70,7 @@ for t in t_sim:
         vc = float (x[2])
         result_vc.append (vc)
         vc0 = vc
-        
+        #print (i_s)
 
 #plot transient analysis
 plt.plot (t_plot, result_vc)
