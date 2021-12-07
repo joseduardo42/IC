@@ -9,8 +9,8 @@ R1 = 1
 R2 = 2
 R3 = 3
 C = 1
-Vm1 = 60
-Vm2 = 40
+I1 = 60
+I2 = 40
 f1 = 100
 w1 = 2*pi*f1
 f2 = 8
@@ -25,7 +25,7 @@ deltat = 1/(100 * f1)
 T1 = (1/f1)
 T = (1/f2)
 
-for h in range(2,6):
+for h in range(7,8):
 
   #frequency -> time
   gamma_inv = np.array([[1] + [f(2*pi*(i)*(j+1)/(2*h+1)) for j in range(h) for f in (sin, cos)] for i in range(2*h+1)])
@@ -40,12 +40,9 @@ for h in range(2,6):
   D = gamma_inv_T1@gamma
 
   #vectors to storage results
-
+  results_vc = []
   shooting_voltage = np.zeros(2*h+1)
-
   transient_result = np.zeros(2*h+1)
-
-  test = np.zeros(2*h+1)
 
   def QPSS(V_shooting):
 
@@ -64,36 +61,20 @@ for h in range(2,6):
       vc0 = V_shooting[i]
       shooting_voltage[i] = vc0
 
-      vs = Vm1*np.sin(2*pi*f1*t_sim[0])
-
-      A1 = np.array([[R1, -R1],
-                    [-R1, (R1 + R2 + R3)]], np.float64)
-
-      b = np.array([[vs], [-vc0]], np.float64)
+      i_saux = I1*np.sin(2*pi*f1*t_sim[0]) + I2*np.sin(2*pi*f2*t_sim[0])
       
-      lin_SM_t0 = linalg.solve(A1,b)
-
-      i0 = float (lin_SM_t0[1]) #current i(0), i(T1),..., (2N)T1
-
       for t in np.delete(t_sim, 0):
         
-          vs = Vm1*np.sin(2*pi*f1*t)#voltage source
-          
-          #linear system to solve in each t  
-          A2 = np.array([[R1, -R1, 0],
-              [-R1, (R1 + R2 + R3), 1],
-              [0, -deltat/(2*C), 1]], np.float64)
-          
-          b = np.array([[vs], [0], [vc0 + i0*deltat/(2*C)]], np.float64)
+        i_s = I1*np.sin(2*pi*f1*t) + I2*np.sin(2*pi*f2*t)#voltage in source in actual time
 
-          z = linalg.solve(A2, b) #solution of system in z
+        #system of mesh analysis to solve in actual time         
+        vc = vc0 + (deltat/C)*((i_s + i_saux)/2)
+        
+        vc0 = vc
 
-          #capacitor current 
-          i0 = float (z[1])
-
-          #capacitor voltage
-          vc0 = float (z[2])
-
+        i_saux = i_s
+        #print (i_s)
+      
       transient_result[i] = vc0
 
     return np.concatenate([
@@ -103,19 +84,16 @@ for h in range(2,6):
   #solve QPSS function
   amplitudes_guess = np.ones(2*h+1)
   y = fsolve(QPSS, amplitudes_guess, full_output=True)
-  #print (y)
-
+  
   #resnorm external fsolve
   resnorm = sum(y[1]['fvec']**2)
   if resnorm > final_resnorm:
       final_resnorm = resnorm
-  #print(final_resnorm)
+  print(final_resnorm)
   #print (y[0])
 
   t_sim = np.arange(0, 3*1/f2 + 1/(100 * f2), 1/(100 * f2))
-  if (t_sim[-1] != T):
-      t_sim = np.arange(0, 3*1/f2, 1/(100 * f2))
-  results_vc = []
+
   for t in t_sim:
 
       sinandcos = np.array([1] + [f(w2*(j+1)*t) for j in range(h) for f in (sin, cos)])

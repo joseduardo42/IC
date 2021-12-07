@@ -11,28 +11,21 @@ new interation.
 """
 
 #ICs
-R1 = 1
-R2 = 2
-R3 = 3
-C = 10**-9
-Vm1 = 60
-Vm2 = 40
+
+C = 1
+I1 = 60
+I2 = 40
 f1 = 100
 f2 = 8
 deltat = 1/(100 * f1)
 tf = 3*(1/f2)
-vs = 0
-vc0 = -0.01162895
+i_saux = 0
+vc0 = 0
 
 #The matrix from the mesh analysis in circuit
-A1 = np.array([[R1, -R1],
-            [-R1, (R1 + R2 + R3)]], np.float64)
-b = np.array([[vs], [-vc0]], np.float64)
 
-x = linalg.solve(A1,b)
-
-i0 = float (x[1]) #current in t0, to use in interations in
-print (i0)
+i_saux = I1*np.sin(2*pi*f1*0) + I2*np.sin(2*pi*f2*0) #current in t0, to use in interations in
+print (i_saux)
 t_sim = np.arange(deltat, tf+deltat, deltat) #time vector to simulation, without t0
 t_plot = np.arange(0, tf+deltat, deltat)  #vector to plot in each time of simulation
 
@@ -42,34 +35,19 @@ result_is = [] #vector to storage the current at source
 
 #storage the parameters of cicuits at t0
 result_vc.append (vc0)
-result_ic.append (i0)
-result_is.append (float (x[0]))
+result_ic.append (i_saux)
+result_is.append (i_saux)
 
 for t in t_sim:
 
-        vs = Vm1*np.sin(2*pi*f1*t) + Vm2*np.sin(2*pi*f2*t)#voltage in source in actual time
-
+        i_s = I1*np.sin(2*pi*f1*t) + I2*np.sin(2*pi*f2*t)#voltage in source in actual time      
         #system of mesh analysis to solve in actual time         
-        A2 = np.array([[R1, -R1, 0],
-            [-R1, (R1 + R2 + R3), 1],
-            [0, -deltat/(2*C), 1]], np.float64)
-        b = np.array([[vs], [0], [vc0 + i0*deltat/(2*C)]], np.float64)
-
-        x = linalg.solve(A2, b)  #solving the system of linear equations in t
+        vc = vc0 + (deltat/C)*((i_s + i_saux)/2)
         
-        #current at source
-        i_s = float (x[0])
-        result_is.append (i_s)
-        
-        #current at capacitor
-        ic = float (x[1])
-        result_ic.append (ic)
-        i0 = ic
-        
-        #voltage at capacitor
-        vc = float (x[2])
         result_vc.append (vc)
         vc0 = vc
+        
+        i_saux = i_s
         #print (i_s)
 
 #plot transient analysis
