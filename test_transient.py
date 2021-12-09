@@ -18,9 +18,8 @@ I2 = 40
 f1 = 100
 f2 = 8
 deltat = 1/(100 * f1)
-tf = 3*(1/f2)
-i_saux = 0
-vc0 = 0
+tf = 5*(1/f2)
+vc0 = 0.99991
 
 #The matrix from the mesh analysis in circuit
 

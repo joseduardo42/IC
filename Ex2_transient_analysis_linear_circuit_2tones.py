@@ -14,15 +14,15 @@ new interation.
 R1 = 1
 R2 = 2
 R3 = 3
-C = 10**-9
+C = 1
 Vm1 = 60
 Vm2 = 40
 f1 = 100
 f2 = 8
-deltat = 1/(100 * f1)
-tf = 3*(1/f2)
+deltat = 1/(100 * f2)
+tf = 21*(1/f2)
 vs = 0
-vc0 = -0.01162895
+vc0 = -0.01145579
 
 #The matrix from the mesh analysis in circuit
 A1 = np.array([[R1, -R1],

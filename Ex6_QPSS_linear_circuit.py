@@ -25,7 +25,7 @@ deltat = 1/(100 * f1)
 T1 = (1/f1)
 T = (1/f2)
 
-for h in range(2,6):
+for h in range(2,3):
 
   #frequency -> time
   gamma_inv = np.array([[1] + [f(2*pi*(i)*(j+1)/(2*h+1)) for j in range(h) for f in (sin, cos)] for i in range(2*h+1)])
@@ -45,8 +45,6 @@ for h in range(2,6):
 
   transient_result = np.zeros(2*h+1)
 
-  test = np.zeros(2*h+1)
-
   def QPSS(V_shooting):
 
   ################## shooting #####################
@@ -54,11 +52,12 @@ for h in range(2,6):
 
     for i in range(2*h+1):
 
-      t_sim = np.arange(i*T1, (i+1)*T1+deltat, deltat)
+      t_sim = np.arange(i*T1, (i+1)*T1, deltat)
 
       if (t_sim[-1] != T1):
-        t_sim = np.arange(i*T1, (i+1)*T1, deltat)
+        t_sim = np.arange(i*T1, (i+1)*T1+deltat, deltat)
 
+      print (t_sim)
       #analysis in t0 = 0, T1, ..., (2N+1)T1
 
       vc0 = V_shooting[i]
@@ -101,7 +100,7 @@ for h in range(2,6):
       ])
 
   #solve QPSS function
-  amplitudes_guess = np.ones(2*h+1)
+  amplitudes_guess = np.zeros(2*h+1)
   y = fsolve(QPSS, amplitudes_guess, full_output=True)
   #print (y)
 
@@ -110,26 +109,7 @@ for h in range(2,6):
   if resnorm > final_resnorm:
       final_resnorm = resnorm
   #print(final_resnorm)
-  #print (y[0])
-
-  t_sim = np.arange(0, 3*1/f2 + 1/(100 * f2), 1/(100 * f2))
-  if (t_sim[-1] != T):
-      t_sim = np.arange(0, 3*1/f2, 1/(100 * f2))
-  results_vc = []
-  for t in t_sim:
-
-      sinandcos = np.array([1] + [f(w2*(j+1)*t) for j in range(h) for f in (sin, cos)])
-      Vc_time = dot(y[0], sinandcos)
-      #print(Vc_time)
-
-      results_vc.append (Vc_time)
-  
-  plt.plot (t_sim, results_vc, label = f'H = {h}')
-  plt.title ('Tensão no capacitor')
-  plt.ylabel ('(V)')
-  plt.xlabel ('Tempo (milisegundos)')
-  plt.grid()
-  plt.legend()
+  print (y[0])
 
 #plot results
 plt.show()
