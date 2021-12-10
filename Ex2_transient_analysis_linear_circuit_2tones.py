@@ -18,11 +18,11 @@ C = 1
 Vm1 = 60
 Vm2 = 40
 f1 = 100
-f2 = 8
+f2 = 10
 deltat = 1/(100 * f2)
-tf = 21*(1/f2)
+tf = 10*(1/f2)
 vs = 0
-vc0 = -0.01145579
+vc0 = -0.06615106
 
 #The matrix from the mesh analysis in circuit
 A1 = np.array([[R1, -R1],

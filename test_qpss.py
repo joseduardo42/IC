@@ -13,7 +13,7 @@ I1 = 60
 I2 = 40
 f1 = 100
 w1 = 2*pi*f1
-f2 = 8
+f2 = 10
 w2 = 2*pi*f2
 final_resnorm = 0
 
@@ -51,22 +51,19 @@ for h in range(1,2):
 
     for i in range(2*h+1):
 
-      t_sim = np.arange(i*T1, (i+1)*T1, deltat)
+      t_sim = np.arange(i*(T/(2*h+1)), i*(T/(2*h+1)) + T1, deltat)
 
-      if (t_sim[-1] != T1):
-        t_sim = np.arange(i*T1, (i+1)*T1+deltat, deltat)
-
-      #print (t_sim)
+      print (t_sim)
       #analysis in t0 = 0, T1, ..., (2N+1)T1
 
       vc0 = V_shooting[i]
       shooting_voltage[i] = vc0
 
-      i_saux = I1*np.sin(2*pi*f1*t_sim[0])
+      i_saux = I1*np.sin(2*pi*f1*t_sim[0]) + I2*np.sin(2*pi*f2*t_sim[0])
       
       for t in np.delete(t_sim, 0):
         
-        i_s = I1*np.sin(2*pi*f1*t)#voltage in source in actual time
+        i_s = I1*np.sin(2*pi*f1*t) + I2*np.sin(2*pi*f2*t)#voltage in source in actual time
 
         #system of mesh analysis to solve in actual time         
         vc = vc0 + (deltat/C)*((i_s + i_saux)/2)
@@ -79,11 +76,11 @@ for h in range(1,2):
       transient_result[i] = vc0
 
     return np.concatenate([
-      transient_result - D@shooting_voltage
+      transient_result - shooting_voltage
       ])
 
   #solve QPSS function
-  amplitudes_guess = np.ones(2*h+1)
+  amplitudes_guess = np.zeros(2*h+1)
   y = fsolve(QPSS, amplitudes_guess, full_output=True)
   
   #resnorm external fsolve

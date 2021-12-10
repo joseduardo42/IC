@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from math import sin, cos, pi
-from numpy import dot, linalg, pi
+from numpy import concatenate, dot, linalg, pi
 from scipy.optimize.minpack import fsolve
 
 #ICs
@@ -13,19 +13,19 @@ Vm1 = 60
 Vm2 = 40
 f1 = 100
 w1 = 2*pi*f1
-f2 = 8
+f2 = 10
 w2 = 2*pi*f2
 final_resnorm = 0
 
-#[f1, f2] = [f2, f1]
-#[w1, w2] = [w2, w1]
+[f1, f2] = [f2, f1]
+[w1, w2] = [w2, w1]
 #print (f1,f2)
 
 deltat = 1/(100 * f1)
 T1 = (1/f1)
 T = (1/f2)
 
-for h in range(2,3):
+for h in range(1,2):
 
   #frequency -> time
   gamma_inv = np.array([[1] + [f(2*pi*(i)*(j+1)/(2*h+1)) for j in range(h) for f in (sin, cos)] for i in range(2*h+1)])
@@ -51,19 +51,17 @@ for h in range(2,3):
   ################## transient (5) #####################
 
     for i in range(2*h+1):
+      #print(i)
 
-      t_sim = np.arange(i*T1, (i+1)*T1, deltat)
+      t_sim = np.arange(i*(T/(2*h+1)), i*(T/(2*h+1))+T1, deltat)
 
-      if (t_sim[-1] != T1):
-        t_sim = np.arange(i*T1, (i+1)*T1+deltat, deltat)
-
-      print (t_sim)
+      #print (t_sim)
       #analysis in t0 = 0, T1, ..., (2N+1)T1
 
       vc0 = V_shooting[i]
       shooting_voltage[i] = vc0
 
-      vs = Vm1*np.sin(2*pi*f1*t_sim[0])
+      vs = Vm1*np.sin(2*pi*f1*t_sim[0]) + Vm2*np.sin(2*pi*f2*t_sim[0])
 
       A1 = np.array([[R1, -R1],
                     [-R1, (R1 + R2 + R3)]], np.float64)
@@ -76,7 +74,7 @@ for h in range(2,3):
 
       for t in np.delete(t_sim, 0):
         
-          vs = Vm1*np.sin(2*pi*f1*t)#voltage source
+          vs = Vm1*np.sin(2*pi*f1*t) + Vm2*np.sin(2*pi*f2*t)#voltage source
           
           #linear system to solve in each t  
           A2 = np.array([[R1, -R1, 0],
@@ -94,11 +92,12 @@ for h in range(2,3):
           vc0 = float (z[2])
 
       transient_result[i] = vc0
-
+      #print(shooting_voltage)
+      
     return np.concatenate([
       transient_result - D@shooting_voltage
       ])
-
+  
   #solve QPSS function
   amplitudes_guess = np.zeros(2*h+1)
   y = fsolve(QPSS, amplitudes_guess, full_output=True)

@@ -16,10 +16,10 @@ C = 1
 I1 = 60
 I2 = 40
 f1 = 100
-f2 = 8
+f2 = 10
 deltat = 1/(100 * f1)
 tf = 5*(1/f2)
-vc0 = 0.99991
+vc0 = 75.37465712
 
 #The matrix from the mesh analysis in circuit
 
