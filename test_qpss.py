@@ -51,9 +51,13 @@ for h in range(1,2):
 
     for i in range(2*h+1):
 
-      t_sim = np.arange(i*(T/(2*h+1)), i*(T/(2*h+1)) + T1, deltat)
+      t_sim = np.arange(i*(T/(2*h+1)), i*(T/(2*h+1)) + T1 + deltat, deltat)
 
-      print (t_sim)
+      if (t_sim[-1] != i*(T/(2*h+1)) + T1):
+
+        t_sim = np.arange(i*(T/(2*h+1)), i*(T/(2*h+1)) + T1, deltat)
+      
+      #print (t_sim)
       #analysis in t0 = 0, T1, ..., (2N+1)T1
 
       vc0 = V_shooting[i]
@@ -76,7 +80,7 @@ for h in range(1,2):
       transient_result[i] = vc0
 
     return np.concatenate([
-      transient_result - shooting_voltage
+      transient_result - D@shooting_voltage
       ])
 
   #solve QPSS function
@@ -87,5 +91,5 @@ for h in range(1,2):
   resnorm = sum(y[1]['fvec']**2)
   if resnorm > final_resnorm:
       final_resnorm = resnorm
-  #print(final_resnorm)
+  print(final_resnorm)
   print (y[0])

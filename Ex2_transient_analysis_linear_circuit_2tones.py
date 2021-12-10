@@ -19,12 +19,18 @@ Vm1 = 60
 Vm2 = 40
 f1 = 100
 f2 = 10
-deltat = 1/(100 * f2)
-tf = 10*(1/f2)
-vs = 0
-vc0 = -0.06615106
+deltat = 1/(100 * f1)
+tf = 20*(1/f2)
+vc0 = 0.17842857
 
 #The matrix from the mesh analysis in circuit
+
+t_sim = np.arange(0, tf+deltat, deltat) #time vector to simulation, without t0
+if (t_sim[-1] != tf):
+    t_sim = np.arange(0, tf, deltat)
+
+vs = Vm1*np.sin(2*pi*f1*t_sim[0]) + Vm2*np.sin(2*pi*f2*t_sim[0])#voltage in source in actual time
+
 A1 = np.array([[R1, -R1],
             [-R1, (R1 + R2 + R3)]], np.float64)
 b = np.array([[vs], [-vc0]], np.float64)
@@ -33,7 +39,7 @@ x = linalg.solve(A1,b)
 
 i0 = float (x[1]) #current in t0, to use in interations in
 print (i0)
-t_sim = np.arange(deltat, tf+deltat, deltat) #time vector to simulation, without t0
+
 t_plot = np.arange(0, tf+deltat, deltat)  #vector to plot in each time of simulation
 
 result_vc = [] #vector to storage the voltage at capacitor
@@ -45,32 +51,30 @@ result_vc.append (vc0)
 result_ic.append (i0)
 result_is.append (float (x[0]))
 
-for t in t_sim:
+for t in np.delete(t_sim, 0):
 
-        vs = Vm1*np.sin(2*pi*f1*t) + Vm2*np.sin(2*pi*f2*t)#voltage in source in actual time
-
-        #system of mesh analysis to solve in actual time         
-        A2 = np.array([[R1, -R1, 0],
-            [-R1, (R1 + R2 + R3), 1],
-            [0, -deltat/(2*C), 1]], np.float64)
-        b = np.array([[vs], [0], [vc0 + i0*deltat/(2*C)]], np.float64)
-
-        x = linalg.solve(A2, b)  #solving the system of linear equations in t
-        
-        #current at source
-        i_s = float (x[0])
-        result_is.append (i_s)
-        
-        #current at capacitor
-        ic = float (x[1])
-        result_ic.append (ic)
-        i0 = ic
-        
-        #voltage at capacitor
-        vc = float (x[2])
-        result_vc.append (vc)
-        vc0 = vc
-        #print (i_s)
+    vs = Vm1*np.sin(2*pi*f1*t) + Vm2*np.sin(2*pi*f2*t)#voltage in source in actual time
+    #system of mesh analysis to solve in actual time         
+    A2 = np.array([[R1, -R1, 0],
+        [-R1, (R1 + R2 + R3), 1],
+        [0, -deltat/(2*C), 1]], np.float64)
+    b = np.array([[vs], [0], [vc0 + i0*deltat/(2*C)]], np.float64)
+    x = linalg.solve(A2, b)  #solving the system of linear equations in t
+    
+    #current at source
+    i_s = float (x[0])
+    result_is.append (i_s)
+    
+    #current at capacitor
+    ic = float (x[1])
+    result_ic.append (ic)
+    i0 = ic
+    
+    #voltage at capacitor
+    vc = float (x[2])
+    result_vc.append (vc)
+    vc0 = vc
+    #print (i_s)
 
 #plot transient analysis
 plt.plot (t_plot, result_vc)

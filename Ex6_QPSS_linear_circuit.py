@@ -17,8 +17,8 @@ f2 = 10
 w2 = 2*pi*f2
 final_resnorm = 0
 
-[f1, f2] = [f2, f1]
-[w1, w2] = [w2, w1]
+#[f1, f2] = [f2, f1]
+#[w1, w2] = [w2, w1]
 #print (f1,f2)
 
 deltat = 1/(100 * f1)
@@ -53,7 +53,10 @@ for h in range(1,2):
     for i in range(2*h+1):
       #print(i)
 
-      t_sim = np.arange(i*(T/(2*h+1)), i*(T/(2*h+1))+T1, deltat)
+      t_sim = np.arange(i*(T/(2*h+1)), i*(T/(2*h+1)) + T1 + deltat, deltat)
+      if (t_sim[-1] != i*(T/(2*h+1)) + T1):
+        
+        t_sim = np.arange(i*(T/(2*h+1)), i*(T/(2*h+1)) + T1, deltat)
 
       #print (t_sim)
       #analysis in t0 = 0, T1, ..., (2N+1)T1
@@ -99,7 +102,7 @@ for h in range(1,2):
       ])
   
   #solve QPSS function
-  amplitudes_guess = np.zeros(2*h+1)
+  amplitudes_guess = np.ones(2*h+1)
   y = fsolve(QPSS, amplitudes_guess, full_output=True)
   #print (y)
 

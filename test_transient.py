@@ -19,7 +19,7 @@ f1 = 100
 f2 = 10
 deltat = 1/(100 * f1)
 tf = 5*(1/f2)
-vc0 = 75.37465712
+vc0 = -57.83404023
 
 #The matrix from the mesh analysis in circuit
 
