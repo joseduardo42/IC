@@ -18,7 +18,7 @@ I2 = 40
 f1 = 100
 f2 = 10
 deltat = 1/(100 * f1)
-tf = 5*(1/f2)
+tf = (1/f2)
 vc0 = -57.83404023
 
 #The matrix from the mesh analysis in circuit
@@ -26,14 +26,14 @@ vc0 = -57.83404023
 i_saux = I1*np.sin(2*pi*f1*0) + I2*np.sin(2*pi*f2*0) #current in t0, to use in interations in
 print (i_saux)
 t_sim = np.arange(deltat, tf+deltat, deltat) #time vector to simulation, without t0
-t_plot = np.arange(0, tf+deltat, deltat)  #vector to plot in each time of simulation
+t_plot_trans = np.arange(0, tf+deltat, deltat)  #vector to plot in each time of simulation
 
-result_vc = [] #vector to storage the voltage at capacitor
+result_vc_trans = [] #vector to storage the voltage at capacitor
 result_ic = [] #vector to storage the current at capacitor
 result_is = [] #vector to storage the current at source
 
 #storage the parameters of cicuits at t0
-result_vc.append (vc0)
+result_vc_trans.append (vc0)
 result_ic.append (i_saux)
 result_is.append (i_saux)
 
@@ -43,14 +43,14 @@ for t in t_sim:
         #system of mesh analysis to solve in actual time         
         vc = vc0 + (deltat/C)*((i_s + i_saux)/2)
         
-        result_vc.append (vc)
+        result_vc_trans.append (vc)
         vc0 = vc
         
         i_saux = i_s
         #print (i_s)
 
 #plot transient analysis
-plt.plot (t_plot, result_vc)
+plt.plot (t_plot_trans, result_vc_trans)
 plt.title ('Tensão no capacitor')
 plt.ylabel ('Tensão no capacitor (V)')
 plt.xlabel ('Tempo (segundos)')

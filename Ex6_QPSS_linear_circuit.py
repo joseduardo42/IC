@@ -113,5 +113,22 @@ for h in range(1,2):
   #print(final_resnorm)
   print (y[0])
 
+Y = gamma@y[0]
+
+t_sim = np.array( [i*T1 for i in range (int(f1/f2) + 1)] )
+print(t_sim)
+results_vc = []
+for t in t_sim:
+
+    sinandcos = np.array([1] + [f(w2*(j+1)*t) for j in range(h) for f in (sin, cos)])
+    Vc_time = dot(Y, sinandcos)
+    #print(Vc_time)
+    results_vc.append (Vc_time)
+
+plt.plot (t_sim, results_vc)
+plt.title ('Tensão no capacitor')
+plt.ylabel ('(V)')
+plt.xlabel ('Tempo (milisegundos)')
+plt.grid()
 #plot results
 plt.show()

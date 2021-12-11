@@ -20,7 +20,7 @@ Vm2 = 40
 f1 = 100
 f2 = 10
 deltat = 1/(100 * f1)
-tf = 20*(1/f2)
+tf = 1*(1/f2)
 vc0 = 0.17842857
 
 #The matrix from the mesh analysis in circuit

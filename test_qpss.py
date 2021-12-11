@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from math import sin, cos, pi
-from numpy import linalg, pi
+from numpy import dot, linalg, pi
 from scipy.optimize.minpack import fsolve
+from test_transient import t_plot_trans, result_vc_trans
 
 #ICs
 R1 = 1
@@ -91,5 +92,29 @@ for h in range(1,2):
   resnorm = sum(y[1]['fvec']**2)
   if resnorm > final_resnorm:
       final_resnorm = resnorm
-  print(final_resnorm)
-  print (y[0])
+  #print(final_resnorm)
+  #print (y[0])
+
+#Y time -> frequency domain
+Y = gamma@y[0]
+
+#simulation time
+t_sim = np.array( [i*T1 for i in range (int(f1/f2))] )
+
+#simulation with eq 1
+results_vc = []
+for t in t_sim:
+
+    sinandcos = np.array([1] + [f(w2*(j+1)*t) for j in range(h) for f in (sin, cos)])
+    Vc_time = dot(Y, sinandcos)
+    #print(Vc_time)
+    results_vc.append (Vc_time)
+
+#plot results
+plt.plot (t_sim, results_vc)
+plt.plot (t_plot_trans, result_vc_trans)
+plt.title ('Tensão no capacitor')
+plt.ylabel ('(V)')
+plt.xlabel ('Tempo (milisegundos)')
+plt.grid()
+plt.show()
