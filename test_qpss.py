@@ -97,21 +97,22 @@ for h in range(1,2):
 
 #Y time -> frequency domain
 Y = gamma@y[0]
-
+print (Y)
 #simulation time
-t_sim = np.array( [i*T1 for i in range (int(f1/f2))] )
+t_sim = np.array( [i*T1 for i in range (int(f1/f2) + 1)] )
 
 #simulation with eq 1
 results_vc = []
 for t in t_sim:
 
-    sinandcos = np.array([1] + [f(w2*(j+1)*t) for j in range(h) for f in (sin, cos)])
-    Vc_time = dot(Y, sinandcos)
-    #print(Vc_time)
-    results_vc.append (Vc_time)
+  sinandcos = np.array([1] + [f(w2*(j+1)*t) for j in range(h) for f in (sin, cos)])
+  print (sinandcos)
+  Vc_time = Y@sinandcos
+  print(Vc_time)
+  results_vc.append (Vc_time)
 
 #plot results
-plt.plot (t_sim, results_vc)
+plt.plot (t_sim, results_vc, "ob")
 plt.plot (t_plot_trans, result_vc_trans)
 plt.title ('Tensão no capacitor')
 plt.ylabel ('(V)')
