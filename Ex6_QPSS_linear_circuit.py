@@ -17,16 +17,14 @@ f2 = 10
 w2 = 2*pi*f2
 final_resnorm = 0
 
-#[f1, f2] = [f2, f1]
-#[w1, w2] = [w2, w1]
-#print (f1,f2)
-
 deltat = 1/(100 * f1)
 T1 = (1/f1)
 T = (1/f2)
 
 for h in range(1,2):
 
+  n_unknows = 2*h+1
+  
   #frequency -> time
   gamma_inv = np.array([[1] + [f(2*pi*(i)*(j+1)/(2*h+1)) for j in range(h) for f in (sin, cos)] for i in range(2*h+1)])
 
@@ -40,59 +38,60 @@ for h in range(1,2):
   D = gamma_inv_T1@gamma
 
   #vectors to storage results
-
-  shooting_voltage = np.zeros(2*h+1)
-
-  transient_result = np.zeros(2*h+1)
+  shooting_voltage = np.zeros(n_unknows)
+  transient_result = np.zeros(n_unknows)
 
   def QPSS(V_shooting):
 
+    Va = np.zeros(n_unknows)
+    Vb = np.zeros(n_unknows)
+    Vc = np.zeros(n_unknows)
+    for i in range(n_unknows):
+        Va[i] = V_shooting[i]
+        Vb[i] = V_shooting[n_unknows+i]
+        Vc[i] = V_shooting[n_unknows+i]
+
+    n = n_unknows*3
   ################## shooting #####################
   ################## transient (5) #####################
 
-    for i in range(2*h+1):
-      #print(i)
+    for i in range(n_unknows):
+      print(i)
 
-      t_sim = np.arange(i*(T/(2*h+1)), i*(T/(2*h+1)) + T1 + deltat, deltat)
-      if (t_sim[-1] != i*(T/(2*h+1)) + T1):
+      t_sim = np.arange(i*(T/(n_unknows)), i*(T/(n_unknows)) + T1 + deltat, deltat)
+      if (t_sim[-1] != i*(T/(n_unknows)) + T1):
         
-        t_sim = np.arange(i*(T/(2*h+1)), i*(T/(2*h+1)) + T1, deltat)
+        t_sim = np.arange(i*(T/(n_unknows)), i*(T/(n_unknows)) + T1, deltat)
 
-      #print (t_sim)
-      #analysis in t0 = 0, T1, ..., (2N+1)T1
-
-      vc0 = V_shooting[i]
-      shooting_voltage[i] = vc0
-
-      vs = Vm1*np.sin(2*pi*f1*t_sim[0]) + Vm2*np.sin(2*pi*f2*t_sim[0])
-
-      A1 = np.array([[R1, -R1],
-                    [-R1, (R1 + R2 + R3)]], np.float64)
-
-      b = np.array([[vs], [-vc0]], np.float64)
+      A2 = np.array([[1, 0, 0, 0, 0],
+                    [-1/R1-1/R2, 1/R2, 0, 1, 0],
+                    [-1/R2, 1/R2, 0, 0, -1],
+                    [0, 0, -1/R3, 0, 1],
+                    [0, 1, -1, 0, 0]], np.float64)
+          
+      b = np.array([[vs], [0], [0], [0], [(vc0)]], np.float64)
+      z = linalg.solve(A2, b) #solution of system in z
       
-      lin_SM_t0 = linalg.solve(A1,b)
-
-      i0 = float (lin_SM_t0[1]) #current i(0), i(T1),..., (2N)T1
+      #capacitor current 
+      i0 = float (z[3])
 
       for t in np.delete(t_sim, 0):
         
-          vs = Vm1*np.sin(2*pi*f1*t) + Vm2*np.sin(2*pi*f2*t)#voltage source
-          
-          #linear system to solve in each t  
-          A2 = np.array([[R1, -R1, 0],
-              [-R1, (R1 + R2 + R3), 1],
-              [0, -deltat/(2*C), 1]], np.float64)
-          
-          b = np.array([[vs], [0], [vc0 + i0*deltat/(2*C)]], np.float64)
-
-          z = linalg.solve(A2, b) #solution of system in z
-
-          #capacitor current 
-          i0 = float (z[1])
-
-          #capacitor voltage
-          vc0 = float (z[2])
+        vs = Vm1*np.sin(2*pi*f1*t) + Vm2*np.sin(2*pi*f2*t)#voltage source
+        
+        #linear system to solve in each t  
+        A2 = np.array([[1, 0, 0, 0, 0],
+                      [(-1/R1-1/R2), 1/R2, 0, 1, 0],
+                      [-1/R2, 1/R2, 0, 0, -1],
+                      [0, 0, -1/R3, 0, 1],
+                      [0, 1, -1, 0, -deltat/(2*C)]], np.float64)
+        
+        b = np.array([[vs], [0], [0], [0], [vc0 + i0*deltat/(2*C)]], np.float64)
+        z = linalg.solve(A2, b) #solution of system in z
+        #capacitor current 
+        i0 = float (z[3])
+        #capacitor voltage
+        vc0 = float (z[2])
 
       transient_result[i] = vc0
       #print(shooting_voltage)
@@ -102,7 +101,7 @@ for h in range(1,2):
       ])
   
   #solve QPSS function
-  amplitudes_guess = np.ones(2*h+1)
+  amplitudes_guess = np.ones(n_unknows)
   y = fsolve(QPSS, amplitudes_guess, full_output=True)
   #print (y)
 
