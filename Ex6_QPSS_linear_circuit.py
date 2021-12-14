@@ -46,10 +46,13 @@ for h in range(1,2):
     Va = np.zeros(n_unknows)
     Vb = np.zeros(n_unknows)
     Vc = np.zeros(n_unknows)
+
     for i in range(n_unknows):
         Va[i] = V_shooting[i]
         Vb[i] = V_shooting[n_unknows+i]
-        Vc[i] = V_shooting[n_unknows+i]
+        Vc[i] = V_shooting[2*n_unknows+i]
+        i_s = V_shooting[3*n_unknows+i]
+        ic = V_shooting[3*n_unknows+i]
 
     n = n_unknows*3
   ################## shooting #####################
@@ -63,14 +66,15 @@ for h in range(1,2):
         
         t_sim = np.arange(i*(T/(n_unknows)), i*(T/(n_unknows)) + T1, deltat)
 
-      A2 = np.array([[1, 0, 0, 0, 0],
+      A1 = np.array([[1, 0, 0, 0, 0],
                     [-1/R1-1/R2, 1/R2, 0, 1, 0],
-                    [-1/R2, 1/R2, 0, 0, -1],
+                    [-1/R2, 1/R2, 0, 0, 1],
                     [0, 0, -1/R3, 0, 1],
                     [0, 1, -1, 0, 0]], np.float64)
           
       b = np.array([[vs], [0], [0], [0], [(vc0)]], np.float64)
-      z = linalg.solve(A2, b) #solution of system in z
+      
+      z = linalg.solve(A1, b) #solution of system in z
       
       #capacitor current 
       i0 = float (z[3])
@@ -82,7 +86,7 @@ for h in range(1,2):
         #linear system to solve in each t  
         A2 = np.array([[1, 0, 0, 0, 0],
                       [(-1/R1-1/R2), 1/R2, 0, 1, 0],
-                      [-1/R2, 1/R2, 0, 0, -1],
+                      [-1/R2, 1/R2, 0, 0, 1],
                       [0, 0, -1/R3, 0, 1],
                       [0, 1, -1, 0, -deltat/(2*C)]], np.float64)
         
