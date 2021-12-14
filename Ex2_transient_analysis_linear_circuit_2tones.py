@@ -56,10 +56,10 @@ print (float(x[3]))
 for t in np.delete(t_sim, 0):
 
     vs = Vm1*np.sin(2*pi*f1*t) + Vm2*np.sin(2*pi*f2*t)#voltage in source in actual time
-    
+
     #system of mesh analysis to solve in actual time         
     A2 = np.array([[1, 0, 0, 0, 0],
-                   [(-1/R1-1/R2), 1/R2, 0, 1, 0],
+                   [(1/R1)+(1/R2), -1/R2, 0, 1, 0],
                    [-1/R2, 1/R2, 0, 0, -1],
                    [0, 0, -1/R3, 0, 1],
                    [0, 1, -1, 0, -deltat/(2*C)]], np.float64)
