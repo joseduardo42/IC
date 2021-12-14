@@ -19,13 +19,11 @@ Vm1 = 60
 Vm2 = 40
 f1 = 100
 f2 = 10
-deltat = 1/(100 * f1)
-tf = (1/f2)
 vc0 = 0.17842857
 
-t_sim = np.arange(0, tf+deltat, deltat) #time vector to simulation, without t0
-if (t_sim[-1] != tf):
-    t_sim = np.arange(0, tf, deltat)
+tf = 1/f2
+N = int(100 * f1/f2)
+(t_sim, deltat) = np.linspace(0, tf, N, retstep=True)
 
 vs = Vm1*np.sin(2*pi*f1*t_sim[0]) + Vm2*np.sin(2*pi*f2*t_sim[0])#voltage in source in actual time (t=0)
 
