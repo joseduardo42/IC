@@ -21,7 +21,7 @@ f1 = 100
 f2 = 10
 vc0 = 0.17842857
 
-tf = 1/f2
+tf = 3*1/f2
 N = int(100 * f1/f2)
 (t_sim, deltat) = np.linspace(0, tf, N, retstep=True)
 

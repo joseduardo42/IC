@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from math import sin, cos, pi
-from numpy import dot, linalg, pi
+from numpy import linalg, pi
 from scipy.optimize.minpack import fsolve
 
 #ICs
@@ -58,7 +58,7 @@ for h in range(1,2):
         shooting_Vb[i] = V_shooting[n_unknows+i]
         shooting_Vc[i] = V_shooting[2*n_unknows+i]
         shooting_is[i] = V_shooting[3*n_unknows+i]
-        shooting_ic[i] = V_shooting[4*n_unknows +i]
+        shooting_ic[i] = V_shooting[4*n_unknows+i]
 
   ################## shooting #####################
   ################## transient (5) #####################
@@ -70,22 +70,23 @@ for h in range(1,2):
         
         t_sim = np.arange(i*(T/(n_unknows)), i*(T/(n_unknows)) + T1, deltat)
 
+      ################## first logic ###################
+
+      # vs = Vm1*np.sin(2*pi*f1*t_sim[0]) + Vm2*np.sin(2*pi*f2*t_sim[0])
+      # shooting_Va[i] = vs
+      # A1 = np.array([[1, 0],
+      #                [0, 1]])
+      # b = np.array([[float((shooting_Vb[i]-shooting_Va[i])/R2 - shooting_Va[i]/R1)], [float((shooting_Va[i]-shooting_Vb[i])/R2)]])
+      # z = linalg.solve(A1, b) #solution of system in z
+      # shooting_is[i] = float (z[0])
+      # i0 = float (z[1])
+      # shooting_ic[i] = i0
+
+      ################## second logic ###################
+
       vc0 = float (shooting_Vb[i] - shooting_Vc[i])
-      vs = Vm1*np.sin(2*pi*f1*t_sim[0]) + Vm2*np.sin(2*pi*f2*t_sim[0])
+      i0 = float(shooting_ic[i])
 
-      A1 = np.array([[1, 0, 0, 0, 0],
-                    [(1/R1)+(1/R2), -1/R2, 0, 1, 0],
-                    [-1/R2, 1/R2, 0, 0, 1],
-                    [0, 0, -1/R3, 0, 1],
-                    [0, 1, -1, 0, 0]], np.float64)
-          
-      b = np.array([[vs], [0], [0], [0], [vc0]], np.float64)
-      
-      z = linalg.solve(A1, b) #solution of system in z
-      print (z)
-
-      #capacitor current 
-      i0 = float (z[4])
       for t in np.delete(t_sim, 0):
         
         vs = Vm1*np.sin(2*pi*f1*t) + Vm2*np.sin(2*pi*f2*t)#voltage source
@@ -96,6 +97,7 @@ for h in range(1,2):
                       [-1/R2, 1/R2, 0, 0, 1],
                       [0, 0, -1/R3, 0, 1],
                       [0, 1, -1, 0, -deltat/(2*C)]], np.float64)
+
         b = np.array([[vs], [0], [0], [0], [vc0 + i0*deltat/(2*C)]], np.float64)
 
         z = linalg.solve(A2, b) #solution of system in z
@@ -110,6 +112,7 @@ for h in range(1,2):
         i0 = float (z[4])
         #capacitor voltage
         vc0 = Vb_t - Vc_t
+
       #transient results
       transient_Va[i] = Va_t
       transient_Vb[i] = Vb_t
@@ -137,15 +140,15 @@ for h in range(1,2):
   #print(final_resnorm)
   print (final_resnorm)
 
-Y = gamma@(y[0][2*n_unknows:3*n_unknows]-y[0][3*n_unknows:4*n_unknows])
+Y = gamma@(y[0][n_unknows:2*n_unknows]-y[0][2*n_unknows:3*n_unknows])
 
 t_sim = np.array( [i*T1 for i in range (int(f1/f2) + 1)] )
-print(t_sim)
+# print(t_sim)
 results_vc = []
 for t in t_sim:
 
     sinandcos = np.array([1] + [f(w2*(j+1)*t) for j in range(h) for f in (sin, cos)])
-    Vc_time = dot(Y, sinandcos)
+    Vc_time = Y@sinandcos
     #print(Vc_time)
     results_vc.append (Vc_time)
 
