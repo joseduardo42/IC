@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from math import sin, cos, pi
 from numpy import linalg, pi
 from scipy.optimize.minpack import fsolve
+# from Ex2_transient_analysis_linear_circuit_2tones import result_vc_trans, t_sim_trans
 
 #ICs
 R1 = 1
@@ -72,21 +73,21 @@ for h in range(1,2):
 
       ################## first logic ###################
 
-      # vs = Vm1*np.sin(2*pi*f1*t_sim[0]) + Vm2*np.sin(2*pi*f2*t_sim[0])
-      # shooting_Va[i] = vs
-      # A1 = np.array([[1, 0],
-      #                [0, 1]])
-      # b = np.array([[float((shooting_Vb[i]-shooting_Va[i])/R2 - shooting_Va[i]/R1)], [float((shooting_Va[i]-shooting_Vb[i])/R2)]])
-      # z = linalg.solve(A1, b) #solution of system in z
-      # shooting_is[i] = float (z[0])
-      # i0 = float (z[1])
-      # shooting_ic[i] = i0
-
-      ################## second logic ###################
-
+      vs = Vm1*np.sin(2*pi*f1*t_sim[0]) + Vm2*np.sin(2*pi*f2*t_sim[0])
+      
       vc0 = float (shooting_Vb[i] - shooting_Vc[i])
-      i0 = float(shooting_ic[i])
+      A1 = np.array([[1, 0, 0, 0, 0],
+                      [(1/R1)+(1/R2), -1/R2, 0, 1, 0],
+                      [-1/R2, 1/R2, 0, 0, 1],
+                      [0, 0, -1/R3, 0, 1],
+                      [0, 1, -1, 0, 0]], np.float64)
 
+      b = np.array([[vs], [0], [0], [0], [vc0]], np.float64)      
+      
+      z = linalg.solve(A1, b) #solution of system in z
+      i0 = float (z[4])
+      print(i0)
+      
       for t in np.delete(t_sim, 0):
         
         vs = Vm1*np.sin(2*pi*f1*t) + Vm2*np.sin(2*pi*f2*t)#voltage source
@@ -129,33 +130,33 @@ for h in range(1,2):
       ])
   
   #solve QPSS function
-  amplitudes_guess = np.ones(n_unknows*5)
+  amplitudes_guess = np.zeros(n_unknows*5)
   y = fsolve(QPSS, amplitudes_guess, full_output=True)
-  #print (y)
 
   #resnorm external fsolve
   resnorm = sum(y[1]['fvec']**2)
   if resnorm > final_resnorm:
       final_resnorm = resnorm
   #print(final_resnorm)
-  print (final_resnorm)
+  # print (final_resnorm)
 
 Y = gamma@(y[0][n_unknows:2*n_unknows]-y[0][2*n_unknows:3*n_unknows])
 
 t_sim = np.array( [i*T1 for i in range (int(f1/f2) + 1)] )
-# print(t_sim)
+# print(Y)
 results_vc = []
 for t in t_sim:
 
     sinandcos = np.array([1] + [f(w2*(j+1)*t) for j in range(h) for f in (sin, cos)])
     Vc_time = Y@sinandcos
-    #print(Vc_time)
+    # print(Vc_time)
     results_vc.append (Vc_time)
 
-plt.plot (t_sim, results_vc, "ob")
-plt.title ('Tensão no capacitor')
-plt.ylabel ('(V)')
-plt.xlabel ('Tempo (milisegundos)')
-plt.grid()
 #plot results
-plt.show()
+# plt.plot (t_sim, results_vc, "ob")
+# plt.plot (t_sim_trans, result_vc_trans)
+# plt.title ('Tensão no capacitor')
+# plt.ylabel ('(V)')
+# plt.xlabel ('Tempo (milisegundos)')
+# plt.grid()
+# plt.show()
