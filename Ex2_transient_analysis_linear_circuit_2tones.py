@@ -19,12 +19,12 @@ Vm1 = 60
 Vm2 = 40
 f1 = 100
 f2 = 10
-vc0 = 0.366
+vc0 = -0.17842857
 tf = 1/f2
 N = int(100 * f1/f2)
 (t_sim_trans, deltat) = np.linspace(0, tf, N, retstep=True)
 
-vs = Vm1*np.sin(2*pi*f1*tf/5) + Vm2*np.sin(2*pi*f2*tf/5)#voltage in source in actual time (t=0)
+vs = Vm1*np.sin(2*pi*f1*t_sim_trans[0]) + Vm2*np.sin(2*pi*f2*t_sim_trans[0])#voltage in source in actual time (t=0)
 
 #The matrix from MNA
 A1 = np.array([[1, 0, 0, 0, 0],

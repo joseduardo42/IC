@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from math import sin, cos, pi
 from numpy import linalg, pi
 from scipy.optimize.minpack import fsolve
-# from Ex2_transient_analysis_linear_circuit_2tones import result_vc_trans, t_sim_trans
+from Ex2_transient_analysis_linear_circuit_2tones import t_sim_trans, result_vc_trans
 
 #ICs
 R1 = 1
@@ -65,17 +65,14 @@ for h in range(1,2):
   ################## transient (5) #####################
 
     for i in range(n_unknows):
-      
-      t_sim = np.arange(i*(T/(n_unknows)), i*(T/(n_unknows)) + T1 + deltat, deltat)
-      if (t_sim[-1] != i*(T/(n_unknows)) + T1):
-        
-        t_sim = np.arange(i*(T/(n_unknows)), i*(T/(n_unknows)) + T1, deltat)
+      # print (i)
 
-      ################## first logic ###################
-
+      N = int(100*f1/f2)
+      (t_sim, deltat) = np.linspace(i*(T/(2*h+1)), i*(T/(2*h+1)) + T1, N, retstep=True)
       vs = Vm1*np.sin(2*pi*f1*t_sim[0]) + Vm2*np.sin(2*pi*f2*t_sim[0])
       
       vc0 = float (shooting_Vb[i] - shooting_Vc[i])
+  
       A1 = np.array([[1, 0, 0, 0, 0],
                       [(1/R1)+(1/R2), -1/R2, 0, 1, 0],
                       [-1/R2, 1/R2, 0, 0, 1],
@@ -86,7 +83,7 @@ for h in range(1,2):
       
       z = linalg.solve(A1, b) #solution of system in z
       i0 = float (z[4])
-      print(i0)
+      # print(i0)
       
       for t in np.delete(t_sim, 0):
         
@@ -143,7 +140,7 @@ for h in range(1,2):
 Y = gamma@(y[0][n_unknows:2*n_unknows]-y[0][2*n_unknows:3*n_unknows])
 
 t_sim = np.array( [i*T1 for i in range (int(f1/f2) + 1)] )
-# print(Y)
+print(y[0][n_unknows:2*n_unknows]-y[0][2*n_unknows:3*n_unknows], Y)
 results_vc = []
 for t in t_sim:
 
@@ -153,10 +150,10 @@ for t in t_sim:
     results_vc.append (Vc_time)
 
 #plot results
-# plt.plot (t_sim, results_vc, "ob")
-# plt.plot (t_sim_trans, result_vc_trans)
-# plt.title ('Tensão no capacitor')
-# plt.ylabel ('(V)')
-# plt.xlabel ('Tempo (milisegundos)')
-# plt.grid()
-# plt.show()
+plt.plot (t_sim, results_vc, "ob")
+plt.plot (t_sim_trans, result_vc_trans)
+plt.title ('Tensão no capacitor')
+plt.ylabel ('(V)')
+plt.xlabel ('Tempo (milisegundos)')
+plt.grid()
+plt.show()
