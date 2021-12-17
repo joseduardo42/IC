@@ -19,8 +19,8 @@ Vm1 = 60
 Vm2 = 40
 f1 = 100
 f2 = 10
-vc0 = -0.17842857
-tf = 1/f2
+vc0 = -0.127303
+tf = 10*1/f2
 N = int(100 * f1/f2)
 (t_sim_trans, deltat) = np.linspace(0, tf, N, retstep=True)
 
@@ -38,7 +38,7 @@ b = np.array([[vs], [0], [0], [0], [vc0]], np.float64)
 x = linalg.solve(A1, b)#solving the system of linear equations in t. x = [Va, Vb, Vc, is, ic1]
 
 i0 = float (x[4]) #current in t0, to use in interations in
-print (i0)
+
 result_vc_trans = [] #vector to storage the voltage at capacitor
 result_ic = [] #vector to storage the current at capacitor
 result_is = [] #vector to storage the current at source
@@ -77,13 +77,13 @@ for t in np.delete(t_sim_trans, 0):
     result_vc_trans.append (vc)
     vc0 = vc
 
-#plot transient analysis
-plt.plot (t_sim_trans, result_vc_trans)
-plt.title ('Tensão no capacitor')
-plt.ylabel ('Tensão no capacitor (V)')
-plt.xlabel ('Tempo (segundos)')
-plt.grid()
-plt.show ()
+# #plot transient analysis
+# plt.plot (t_sim_trans, result_vc_trans)
+# plt.title ('Tensão no capacitor')
+# plt.ylabel ('Tensão no capacitor (V)')
+# plt.xlabel ('Tempo (segundos)')
+# plt.grid()
+# plt.show ()
 
 """"
 plt.plot (t_plot, result_ic)

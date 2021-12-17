@@ -18,14 +18,12 @@ f2 = 10
 w2 = 2*pi*f2
 final_resnorm = 0
 
-deltat = 1/(100 * f1)
 T1 = (1/f1)
 T = (1/f2)
 
 for h in range(1,2):
 
   n_unknows = 2*h+1
-  
   #frequency -> time
   gamma_inv = np.array([[1] + [f(2*pi*(i)*(j+1)/(2*h+1)) for j in range(h) for f in (sin, cos)] for i in range(2*h+1)])
 
@@ -55,11 +53,11 @@ for h in range(1,2):
 
     #vector of unknowns
     for i in range(n_unknows):
-        shooting_Va[i] = V_shooting[i]
-        shooting_Vb[i] = V_shooting[n_unknows+i]
-        shooting_Vc[i] = V_shooting[2*n_unknows+i]
-        shooting_is[i] = V_shooting[3*n_unknows+i]
-        shooting_ic[i] = V_shooting[4*n_unknows+i]
+      shooting_Va[i] = V_shooting[i]
+      shooting_Vb[i] = V_shooting[n_unknows+i]
+      shooting_Vc[i] = V_shooting[2*n_unknows+i]
+      shooting_is[i] = V_shooting[3*n_unknows+i]
+      shooting_ic[i] = V_shooting[4*n_unknows+i]
 
   ################## shooting #####################
   ################## transient (5) #####################
@@ -67,11 +65,12 @@ for h in range(1,2):
     for i in range(n_unknows):
       # print (i)
 
-      N = int(100*f1/f2)
+      N = int(10*f1/f2)
       (t_sim, deltat) = np.linspace(i*(T/(2*h+1)), i*(T/(2*h+1)) + T1, N, retstep=True)
+
       vs = Vm1*np.sin(2*pi*f1*t_sim[0]) + Vm2*np.sin(2*pi*f2*t_sim[0])
       
-      vc0 = float (shooting_Vb[i] - shooting_Vc[i])
+      vc0 = shooting_Vb[i] - shooting_Vc[i]
   
       A1 = np.array([[1, 0, 0, 0, 0],
                       [(1/R1)+(1/R2), -1/R2, 0, 1, 0],
@@ -82,9 +81,9 @@ for h in range(1,2):
       b = np.array([[vs], [0], [0], [0], [vc0]], np.float64)      
       
       z = linalg.solve(A1, b) #solution of system in z
-      i0 = float (z[4])
-      # print(i0)
       
+      i0 = float (z[4])
+      print(i0)
       for t in np.delete(t_sim, 0):
         
         vs = Vm1*np.sin(2*pi*f1*t) + Vm2*np.sin(2*pi*f2*t)#voltage source
@@ -108,6 +107,7 @@ for h in range(1,2):
         i_s = float (z[3])   
         #capacitor current 
         i0 = float (z[4])
+        #print (Va_t, Vb_t, Vc_t, i0)
         #capacitor voltage
         vc0 = Vb_t - Vc_t
 
@@ -137,23 +137,25 @@ for h in range(1,2):
   #print(final_resnorm)
   # print (final_resnorm)
 
-Y = gamma@(y[0][n_unknows:2*n_unknows]-y[0][2*n_unknows:3*n_unknows])
+  Y = gamma@(y[0][n_unknows:2*n_unknows]-y[0][2*n_unknows:3*n_unknows])
 
-t_sim = np.array( [i*T1 for i in range (int(f1/f2) + 1)] )
-print(y[0][n_unknows:2*n_unknows]-y[0][2*n_unknows:3*n_unknows], Y)
-results_vc = []
-for t in t_sim:
+  print(y[0][n_unknows:2*n_unknows]-y[0][2*n_unknows:3*n_unknows], Y)
+  
+  t_sim = np.array( [i*T1 for i in range (int(f1/f2) + 1)] )
 
+  results_vc = []
+
+  for t in t_sim:
     sinandcos = np.array([1] + [f(w2*(j+1)*t) for j in range(h) for f in (sin, cos)])
     Vc_time = Y@sinandcos
-    # print(Vc_time)
     results_vc.append (Vc_time)
 
-#plot results
-plt.plot (t_sim, results_vc, "ob")
-plt.plot (t_sim_trans, result_vc_trans)
-plt.title ('Tensão no capacitor')
-plt.ylabel ('(V)')
-plt.xlabel ('Tempo (milisegundos)')
-plt.grid()
+  #plot results
+  plt.plot (t_sim, results_vc, "ob", label = f'H = {h}')
+  plt.plot (t_sim_trans, result_vc_trans)
+  plt.title ('Tensão no capacitor')
+  plt.ylabel ('(V)')
+  plt.xlabel ('Tempo (segundos)')
+  plt.grid()
+  plt.legend()
 plt.show()

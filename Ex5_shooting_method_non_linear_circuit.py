@@ -1,8 +1,5 @@
-from typing import final
 import numpy as np
-from numpy import linalg
-from numpy.core.function_base import linspace
-from scipy.optimize import fsolve, root
+from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
 from math import pi
 from Ex3_transien_nonlinear_circuit import t_plot__aux, result_vc1_transi,aux, result_vc2_transi
