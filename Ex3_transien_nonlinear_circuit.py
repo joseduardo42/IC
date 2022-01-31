@@ -17,10 +17,11 @@ Vc10 = -73.29215789
 Vc20 = -76.95672331
 # fonte do Ex1
 f = 10 ** 9
-deltat = 1 / (100 * f)
+f1 = 1 * 10 ** 9
+f2 = 1.1 * 10 ** 9
+# deltat = 1 / (100 * f)
 tf = (1 / f)
 A = 100
-
 C1 = 10 ** (-11)
 C2 = 10 ** (-6)
 
@@ -44,6 +45,7 @@ result_vc1 = []  # vector to storage the voltage at capacitor 1
 result_vc2 = []  # vector to storage the voltage at capacitor 2
 result_ic1 = []  # vector to storage the current at capacitor 1
 result_ic2 = []  # vector to storage the current at capacitor 2
+nonlinear_element = []
 
 # correntes nos capacitores
 ic10 = y1 - y2
@@ -58,11 +60,14 @@ result_ic2.append(ic20)
 Va = A * np.sin(2 * pi * f * 0)
 Vb = Vc10
 Vc = Vb - Vc20
+nonlinear_element.append(((0.1 * np.sign(Va)) / ((1 + (1.8 / abs(Va)) ** 5) ** (1 / 5))))
 
-t_sim = np.arange(deltat, tf, deltat)  # time vector to simulation, without t0
-t_plot = np.arange(0, tf, deltat)  # vector to plot in each time of simulation
+n = int(100 * f1 / f2)
+(t_sim, deltat) = np.linspace(0, 10 * (1 / f1), n, retstep=True)
+# t_sim = np.arange(deltat, 5 * tf, deltat)  # time vector to simulation, without t0
+# t_plot = np.arange(0, 5 * tf, deltat)  # vector to plot in each time of simulation
 
-for t in t_sim:
+for t in np.delete(t_sim, 0):
     Vs = A * np.sin(2 * pi * f * t)  # voltage in source in actual time
 
     # system of nodal analysis to solve in actual time
@@ -80,6 +85,7 @@ for t in t_sim:
     Va = y[0]
     Vb = y[1]
     Vc = y[2]
+    nonlinear_element_calc = ((0.1 * np.sign(Va)) / ((1 + (1.8 / abs(Va)) ** 5) ** (1 / 5)))
 
     # previous values to next time interation
     ic10 = ((2 * C1 / deltat) * (Vb - Vc10) - ic10)
@@ -88,21 +94,18 @@ for t in t_sim:
     Vc20 = Vb - Vc
 
     # storage the values
+    nonlinear_element.append(nonlinear_element_calc)
     result_vc1_transi.append(Vc10)
     result_vc2_transi.append(Vc20)
     result_ic1.append(ic10)
     result_ic2.append(ic20)
 
-# variables for plot comparing to shooting method. Otherwise, use t_plot and result_vc
-t_plot__aux = np.arange(0, 1 / f, deltat)
-aux = len(t_plot__aux)
-
-plt.plot(t_plot__aux, result_vc1_transi[-aux:])
-plt.title('Tensão no Capacitor 1')
-plt.ylabel('(V)')
-plt.xlabel('Tempo (mili segundos)')
-plt.grid()
-plt.show()
+# plt.plot(t_sim, nonlinear_element)
+# plt.title('Tensão no Capacitor 1')
+# plt.ylabel('(V)')
+# plt.xlabel('Tempo (mili segundos)')
+# plt.grid()
+# plt.show()
 ###
 # plt.plot (t_plot, result_vc2)
 # plt.title ('Tensão no Capacitor 2')
