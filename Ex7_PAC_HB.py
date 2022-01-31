@@ -20,13 +20,6 @@ Vm1 = 5
 Vm2 = 3
 h = 2
 k = 2 * h + 1
-"""
-This code have as objective the harmonic balance analysis of a non linear
-circuit. To calculate the harmonic balance, it is necessary to provide the initial
-conditions in the components of circuits and also the equations of circuit.
-The simulation of transient depends of the wave amplitudes obtained in the
-harmonic balance
-"""
 
 # frequency -> time (F = gamma_inv)
 gamma_inv = np.array([[1] + [f(2 * pi * i * (j + 1) / k) for j in range(h) for f in (sin, cos)] for i in
