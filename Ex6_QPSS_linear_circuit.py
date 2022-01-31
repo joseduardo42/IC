@@ -57,7 +57,6 @@ for h in range(4, 5):
 
         # vector of unknowns
 
-        global va_t, vb_t, vc_t, i_s
         for i in range(n_unknows):
             shooting_Va[i] = shooting_tension[i]
             shooting_Vb[i] = shooting_tension[n_unknows + i]
