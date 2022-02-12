@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error
 
 from Ex3_transien_nonlinear_circuit import nonlinear_element as nonlinear_element_transient
+
 # from Ex7_PAC_HB_superposition import Vm1, f1, T1, f2, w1, k, h, R1, C1, C2, RL
 # params
 C1 = 10 * 10 ** -12
@@ -40,6 +41,7 @@ def circuit_equations(v):
     Va = np.zeros(k)
     Vb = np.zeros(k)
     Vc = np.zeros(k)
+
     for j in range(k):
         Va[j] = v[j]
         Vb[j] = v[k + j]
@@ -60,7 +62,7 @@ def circuit_equations(v):
 
 
 # starting estimate and solve the system of nonlinear equations
-amplitudes_guess = np.zeros(3*k)
+amplitudes_guess = np.zeros(3 * k)
 y = fsolve(circuit_equations, amplitudes_guess)
 
 X_va = y[:k]
@@ -75,13 +77,40 @@ results_vb = []
 results_vc = []
 nonlinear_element = []
 
+sinandcos = np.array([1] + [f(w1 * (j + 1) * 0) for j in range(h) for f in (sin, cos)])
+
+Va_time = sinandcos @ X_va
+Vb_time = sinandcos @ X_vb
+Vc_time = sinandcos @ X_vc
+
+
+def func(x):
+    return [R1 * x[0] + Vb_time,
+            -Vb_time + (Vb_time - Vc_time) + x[1] * RL]
+
+
+y = fsolve(func, np.zeros(2))
+
+ic10 = y[0] - y[1]
+ic20 = y[1]
+Vc10 = Vb_time
+dependent_source = (Vc_time / RL) + (Vb_time / R1) + ((2 * C1 / deltat) * (Vb_time - Vc10) - ic10)
+
+results_va.append(Va_time)
+results_vb.append(Vb_time)
+results_vc.append(Vc_time)
+nonlinear_element.append(dependent_source)
+
 # waveforms of HB
-for t in t_sim:
+for t in np.delete(t_sim, 0):
     sinandcos = np.array([1] + [f(w1 * (j + 1) * t) for j in range(h) for f in (sin, cos)])
     Va_time = sinandcos @ X_va
     Vb_time = sinandcos @ X_vb
     Vc_time = sinandcos @ X_vc
-    dependent_source = (0.1 * np.sign(Va_time)) / ((1 + (1.8 / abs(Va_time)) ** 5) ** (1 / 5))
+    dependent_source = Vc_time / RL + Vb_time / R1 + ((2 * C1 / deltat) * (Vb_time - Vc10) - ic10)
+
+    Vc10 = Vb_time
+    ic10 = ((2 * C1 / deltat) * (Vb_time - Vc10) - ic10)
 
     results_va.append(Va_time)
     results_vb.append(Vb_time)
@@ -97,7 +126,7 @@ plt.legend(loc="upper right")
 plt.plot(t_sim, nonlinear_element_transient, label='Transitório')
 plt.legend(loc="upper right")
 plt.title('Corrente da fonte controlada')
-plt.ylabel('(V)')
+plt.ylabel('(A)')
 plt.xlabel('Tempo (mili segundos)')
 plt.grid()
 plt.show()
