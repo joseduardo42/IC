@@ -19,7 +19,7 @@ f2 = 1.1 * 10 ** 9
 w2 = 2 * pi * f2
 Vm1 = 5
 Vm2 = 3
-h = 2
+h = 16
 k = 2 * h + 1
 
 # frequency -> time (F = gamma_inv)
@@ -68,49 +68,25 @@ y = fsolve(circuit_equations, amplitudes_guess)
 X_va = y[:k]
 X_vb = y[k: 2 * k]
 X_vc = y[2 * k: 3 * k]
+X_c1 = (C1 * omega) @ X_vb
 
-n = int(100 * f1 / f2)
-(t_sim, deltat) = np.linspace(0, 10 * (1 / f1), n, retstep=True)
+# n = int(1 / f2)
+# (t_sim, deltat) = np.linspace(0, 5 * (1 / f1), n, retstep=True)
+deltat = 1 / (100 * f1)
+t_sim = np.arange(0, 10 * 1/f1 + deltat, deltat)
 
 results_va = []
 results_vb = []
 results_vc = []
 nonlinear_element = []
 
-sinandcos = np.array([1] + [f(w1 * (j + 1) * 0) for j in range(h) for f in (sin, cos)])
-
-Va_time = sinandcos @ X_va
-Vb_time = sinandcos @ X_vb
-Vc_time = sinandcos @ X_vc
-
-
-def func(x):
-    return [R1 * x[0] + Vb_time,
-            -Vb_time + (Vb_time - Vc_time) + x[1] * RL]
-
-
-y = fsolve(func, np.zeros(2))
-
-ic10 = y[0] - y[1]
-ic20 = y[1]
-Vc10 = Vb_time
-dependent_source = (Vc_time / RL) + (Vb_time / R1) + ((2 * C1 / deltat) * (Vb_time - Vc10) - ic10)
-
-results_va.append(Va_time)
-results_vb.append(Vb_time)
-results_vc.append(Vc_time)
-nonlinear_element.append(dependent_source)
-
 # waveforms of HB
-for t in np.delete(t_sim, 0):
+for t in t_sim:
     sinandcos = np.array([1] + [f(w1 * (j + 1) * t) for j in range(h) for f in (sin, cos)])
     Va_time = sinandcos @ X_va
     Vb_time = sinandcos @ X_vb
     Vc_time = sinandcos @ X_vc
-    dependent_source = Vc_time / RL + Vb_time / R1 + ((2 * C1 / deltat) * (Vb_time - Vc10) - ic10)
-
-    Vc10 = Vb_time
-    ic10 = ((2 * C1 / deltat) * (Vb_time - Vc10) - ic10)
+    dependent_source = Vc_time / RL + Vb_time / R1 + sinandcos @ X_c1
 
     results_va.append(Va_time)
     results_vb.append(Vb_time)
