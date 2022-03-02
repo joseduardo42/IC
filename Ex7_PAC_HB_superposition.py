@@ -3,6 +3,11 @@ import numpy as np
 from numpy.linalg import inv
 from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
+from sklearn.metrics import mean_squared_error
+
+from Ex7_PAC_HB import X_va, X_vb, X_vc, h, k
+from Ex3_transien_nonlinear_circuit import nonlinear_element as nonlinear_element_transient
+
 
 """
 This code have as objective the harmonic balance analysis of a non linear
@@ -23,97 +28,91 @@ f2 = 1.1 * 10 ** 9
 w2 = 2 * pi * f2
 Vm1 = 5
 Vm2 = 3
-h=1
 
 T1 = (1 / f1)
 T = (1 / f2)
 
-for h in range(1, 2):
-    k = 2 * h + 1
-    # frequency -> time
-    F = np.array([[1] + [f(2 * pi * i * (j + 1) / (2 * h + 1)) for j in range(h) for f in (sin, cos)] for i in
-                  range(2 * h + 1)])
-    # time -> frequency
-    F_inv = inv(F)
+# frequency -> time (F = gamma_inv)
+gamma_inv = np.array([[1] + [f(2 * pi * i * (j + 1) / k) for j in range(h) for f in (sin, cos)] for i in
+                      range(k)])
+# time -> frequency (F⁻¹ = gamma)
+gamma = inv(gamma_inv)
 
-    # omega matrix
-    omega = np.zeros((5, 5))
-    omega[1, 2] = -w
-    omega[2, 1] = w
-    omega[3, 4] = -2 * w
-    omega[4, 3] = 2 * w
+# omega_2tons matrix
 
-    n = int(20 * f1 / f2)
-    (t_sim, deltat) = np.linspace(0, T1, n, retstep=True)
+omega_2tons = np.zeros((k, k))
+for i in range(h):
+    omega_2tons[2 * i + 1, 2 * i + 2] = - (w2 - (i + 1) * w1)
+    omega_2tons[2 * i + 2, 2 * i + 1] = (w2 - (i + 1) * w1)
 
+non_linear = gamma_inv @ X_va
 
-    # Define the system equations
-    def circuit_equations(v):
-        # vector of unknowns
-        Va = np.zeros(5)
-        Vb = np.zeros(5)
-        Vc = np.zeros(5)
-        for i in range(5):
-            Va[i] = v[i]
-            Vb[i] = v[5 + i]
-            Vc[i] = v[10 + i]
+G_1tom = gamma @ ((0.1 * np.sign(non_linear)) / ((1 + (1.8 / abs(non_linear)) ** 5) ** (1 / 5)))
 
-        # definition of amplitude source and Va in time-domain
-        A_amplitude = np.array([0, A, 0, 0, 0])
-        non_linear = F @ Va
-        vc2 = Vb - Vc
+def hb_lin(v):
+    # vector of unknowns
+    Va = np.zeros(k)
+    Vb = np.zeros(k)
+    Vc = np.zeros(k)
 
-        return np.concatenate([
-            Va - A_amplitude,
-            (F_inv @ ((0.1 * np.sign(non_linear)) / ((1 + (1.8 / abs(non_linear)) ** 5) ** (1 / 5)))) - (
-                        1 / R1) * Vb - (
-                    C1 * omega) @ Vb - (C2 * omega) @ vc2,
-            C2 * omega @ vc2 - (1 / RL) * Vc
-        ])
+    for j in range(k):
+        Va[j] = v[j]
+        Vb[j] = v[k + j]
+        Vc[j] = v[2 * k + j]
+
+    # definition of amplitude source and Va in time-domain
+    A_amplitude = np.zeros(k)
+    A_amplitude[1] = Vm2
+    vc2 = Vb - Vc
+
+    return np.concatenate([
+        Va - A_amplitude,
+        G_1tom @ Va - (1 / R1) * Vb
+        - (C1 * omega_2tons) @ Vb - (C2 * omega_2tons) @ vc2,
+        C2 * omega_2tons @ vc2 - Vc / RL
+    ])
 
 
-    # starting estimate and solve the system of nonlinear equations
-    amplitudes_guess = np.zeros(15)
-    y = fsolve(circuit_equations, amplitudes_guess)
-print(y)
+amplitudes_guess = np.zeros(3 * k)
+y = fsolve(hb_lin, amplitudes_guess)
 
-# transient analysis
+X_va = y[:k]
+X_vb = y[k: 2 * k]
+X_vc = y[2 * k: 3 * k]
+X_c1 = (C1 * omega_2tons) @ X_vb
 
-t_sim = np.arange(0, tf + deltat, deltat)  # time simulation
-# vectors to storage results
+# n = int(1 / f2)
+# (t_sim, deltat) = np.linspace(0, 5 * (1 / f1), n, retstep=True)
+deltat = 1 / (100 * f1)
+t_sim = np.arange(0, 10 * 1/f1 + deltat, deltat)
+
 results_va = []
 results_vb = []
 results_vc = []
+nonlinear_element = []
 
 # waveforms of HB
 for t in t_sim:
-    Va_time = y[0] + y[1] * sin(w * t) + y[2] * cos(w * t) + y[3] * sin(2 * w * t) + y[4] * cos(2 * w * t)
-    Vb_time = y[5] + y[6] * sin(w * t) + y[7] * cos(w * t) + y[8] * sin(2 * w * t) + y[9] * cos(2 * w * t)
-    Vc_time = y[10] + y[11] * sin(w * t) + y[12] * cos(w * t) + y[13] * sin(2 * w * t) + y[14] * cos(2 * w * t)
-    dependent_source = ((0.1 * np.sign(Va_time)) / ((1 + (1.8 / abs(Va_time)) ** 5) ** (1 / 5)))
+    sinandcos = np.array([1] + [f(w1 * (j + 1) * t) for j in range(h) for f in (sin, cos)])
+    Va_time = sinandcos @ X_va
+    Vb_time = sinandcos @ X_vb
+    Vc_time = sinandcos @ X_vc
+    dependent_source = Vc_time / RL + Vb_time / R1 + sinandcos @ X_c1
 
     results_va.append(Va_time)
     results_vb.append(Vb_time)
     results_vc.append(Vc_time)
+    nonlinear_element.append(dependent_source)
 
-# plot results
-plt.plot(t_sim, results_vb)
+MSE = mean_squared_error(nonlinear_element, nonlinear_element_transient)
+print(MSE)
+
+plt.plot(t_sim, nonlinear_element, label='HB')
+plt.legend(loc="upper right")
+plt.plot(t_sim, nonlinear_element_transient, label='Transitório')
+plt.legend(loc="upper right")
 plt.title('Corrente da fonte controlada')
-plt.ylabel('(V)')
+plt.ylabel('(A)')
 plt.xlabel('Tempo (mili segundos)')
 plt.grid()
 plt.show()
-
-# plt.plot (t_sim, results_vb)
-# plt.title ('Tensão no Capacitor 1')
-# plt.ylabel ('(V)')
-# plt.xlabel ('Tempo (mili segundos)')
-# plt.grid()
-# plt.show()
-
-# plt.plot (t_sim, results_vc2)
-# plt.title ('Tensão no Capacitor 2')
-# plt.ylabel ('(V)')
-# plt.xlabel ('Tempo (mili segundos)')
-# plt.grid()
-# plt.show ()
