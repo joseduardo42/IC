@@ -7,7 +7,7 @@ from sklearn.metrics import mean_squared_error
 
 from Ex3_transien_nonlinear_circuit import nonlinear_element as nonlinear_element_transient
 
-# from Ex7_PAC_HB_superposition import Vm1, f1, T1, f2, w1, k, h, R1, C1, C2, RL
+# from Ex7_PAC_HB_superposition import Vm1, f1, T1, f2, w1, k, h1, R1, C1, C2, RL
 # params
 C1 = 10 * 10 ** -12
 C2 = 1 * 10 ** -6
@@ -19,18 +19,18 @@ f2 = 1.1 * 10 ** 9
 w2 = 2 * pi * f2
 Vm1 = 5
 Vm2 = 3
-h = 16
-k = 2 * h + 1
+h1 = 16
+k = 2 * h1 + 1
 
 # frequency -> time (F = gamma_inv)
-gamma_inv = np.array([[1] + [f(2 * pi * i * (j + 1) / k) for j in range(h) for f in (sin, cos)] for i in
+gamma_inv = np.array([[1] + [f(2 * pi * i * (j + 1) / k) for j in range(h1) for f in (sin, cos)] for i in
                       range(k)])
 # time -> frequency (F⁻¹ = gamma)
 gamma = inv(gamma_inv)
 
 # omega matrix
 omega = np.zeros((k, k))
-for i in range(h):
+for i in range(h1):
     omega[2 * i + 1, 2 * i + 2] = - (i + 1) * w1
     omega[2 * i + 2, 2 * i + 1] = (i + 1) * w1
 
@@ -97,12 +97,12 @@ MSE = mean_squared_error(nonlinear_element, nonlinear_element_transient)
 print(MSE)
 
 # plot results
-plt.plot(t_sim, nonlinear_element, label='HB')
-plt.legend(loc="upper right")
-plt.plot(t_sim, nonlinear_element_transient, label='Transitório')
-plt.legend(loc="upper right")
-plt.title('Corrente da fonte controlada')
-plt.ylabel('(A)')
-plt.xlabel('Tempo (mili segundos)')
-plt.grid()
-plt.show()
+# plt.plot(t_sim, nonlinear_element, label='HB')
+# plt.legend(loc="upper right")
+# plt.plot(t_sim, nonlinear_element_transient, label='Transitório')
+# plt.legend(loc="upper right")
+# plt.title('Corrente da fonte controlada')
+# plt.ylabel('(A)')
+# plt.xlabel('Tempo (mili segundos)')
+# plt.grid()
+# plt.show()
