@@ -5,9 +5,8 @@ from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error
 
-from Ex7_PAC_HB import X_va, X_vb, X_vc, h, k
+from Ex7_PAC_HB import X_va, X_vb, X_vc, h1, k
 from Ex3_transien_nonlinear_circuit import nonlinear_element as nonlinear_element_transient
-
 
 """
 This code have as objective the harmonic balance analysis of a non linear
@@ -28,12 +27,15 @@ f2 = 1.1 * 10 ** 9
 w2 = 2 * pi * f2
 Vm1 = 5
 Vm2 = 3
+k1 = 2 * k
+h2 = 8
+k2 = 2 * h2 + 1
 
 T1 = (1 / f1)
 T = (1 / f2)
 
 # frequency -> time (F = gamma_inv)
-gamma_inv = np.array([[1] + [f(2 * pi * i * (j + 1) / k) for j in range(h) for f in (sin, cos)] for i in
+gamma_inv = np.array([[1] + [f(2 * pi * i * (j + 1) / k) for j in range(h1) for f in (sin, cos)] for i in
                       range(k)])
 # time -> frequency (F⁻¹ = gamma)
 gamma = inv(gamma_inv)
@@ -72,17 +74,17 @@ for i in range(k1):
 
 def hb_lin(v):
     # vector of unknowns
-    Va = np.zeros(k)
-    Vb = np.zeros(k)
-    Vc = np.zeros(k)
+    Va = np.zeros(k2)
+    Vb = np.zeros(k2)
+    Vc = np.zeros(k2)
 
-    for j in range(k):
+    for j in range(k2):
         Va[j] = v[j]
-        Vb[j] = v[k + j]
-        Vc[j] = v[2 * k + j]
+        Vb[j] = v[k2 + j]
+        Vc[j] = v[2 * k2 + j]
 
     # definition of amplitude source and Va in time-domain
-    A_amplitude = np.zeros(k)
+    A_amplitude = np.zeros(k2)
     A_amplitude[1] = Vm2
     vc2 = Vb - Vc
 
@@ -105,7 +107,7 @@ X_c1 = (C1 * omega_2tons) @ X_vb
 # n = int(1 / f2)
 # (t_sim, deltat) = np.linspace(0, 5 * (1 / f1), n, retstep=True)
 deltat = 1 / (100 * f1)
-t_sim = np.arange(0, 10 * 1/f1 + deltat, deltat)
+t_sim = np.arange(0, 10 * 1 / f1 + deltat, deltat)
 
 results_va = []
 results_vb = []
