@@ -40,14 +40,35 @@ gamma = inv(gamma_inv)
 
 # omega_2tons matrix
 
-omega_2tons = np.zeros((k, k))
-for i in range(h):
-    omega_2tons[2 * i + 1, 2 * i + 2] = - (w2 - (i + 1) * w1)
-    omega_2tons[2 * i + 2, 2 * i + 1] = (w2 - (i + 1) * w1)
+omega_2tons = np.zeros((2 * k, 2 * k))
+position_omega_vector = 0
+for h in range(-h1, h1 + 1, 1):
+    omega_2tons[2 * position_omega_vector + 1, 2 * position_omega_vector] = - (w2 + h * w1)
+    omega_2tons[2 * position_omega_vector, 2 * position_omega_vector + 1] = (w2 + h * w1)
+    position_omega_vector += 1
 
+# creating G_1tom (first matrix in right hand of (22))
 non_linear = gamma_inv @ X_va
+g_1tom = gamma @ ((0.1 * np.sign(non_linear)) / ((1 + (1.8 / abs(non_linear)) ** 5) ** (1 / 5)))
+print(g_1tom)
+G_1tom = np.zeros((k1, k1))
+for i in range(k1):
+    if i % 2 == 0:
+        r1 = range(i, -1, -1)
+        r2 = range(i + 2, k1)
+    else:
+        r1 = range(i, k1)
+        r2 = range(i-2, -1, -1)
 
-G_1tom = gamma @ ((0.1 * np.sign(non_linear)) / ((1 + (1.8 / abs(non_linear)) ** 5) ** (1 / 5)))
+    for (n, j) in enumerate(r1):
+        G_1tom[i, j] = g_1tom[n]
+
+    for (n, j) in enumerate(r2):
+        if n % 2 == 0:
+            G_1tom[i, j] = g_1tom[n+2]
+        else:
+            G_1tom[i, j] = -g_1tom[n]
+
 
 def hb_lin(v):
     # vector of unknowns
@@ -93,7 +114,7 @@ nonlinear_element = []
 
 # waveforms of HB
 for t in t_sim:
-    sinandcos = np.array([1] + [f(w1 * (j + 1) * t) for j in range(h) for f in (sin, cos)])
+    sinandcos = np.array([1] + [f(w2 + j * w1 * t) for j in range(-h1, h1, 1) for f in (sin, cos)])
     Va_time = sinandcos @ X_va
     Vb_time = sinandcos @ X_vb
     Vc_time = sinandcos @ X_vc
@@ -107,12 +128,12 @@ for t in t_sim:
 MSE = mean_squared_error(nonlinear_element, nonlinear_element_transient)
 print(MSE)
 
-plt.plot(t_sim, nonlinear_element, label='HB')
-plt.legend(loc="upper right")
-plt.plot(t_sim, nonlinear_element_transient, label='Transitório')
-plt.legend(loc="upper right")
-plt.title('Corrente da fonte controlada')
-plt.ylabel('(A)')
-plt.xlabel('Tempo (mili segundos)')
-plt.grid()
-plt.show()
+# plt.plot(t_sim, nonlinear_element, label='HB')
+# plt.legend(loc="upper right")
+# plt.plot(t_sim, nonlinear_element_transient, label='Transitório')
+# plt.legend(loc="upper right")
+# plt.title('Corrente da fonte controlada')
+# plt.ylabel('(A)')
+# plt.xlabel('Tempo (mili segundos)')
+# plt.grid()
+# plt.show()
