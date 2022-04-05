@@ -63,11 +63,11 @@ def circuit_equations(v):
 
 # starting estimate and solve the system of nonlinear equations
 amplitudes_guess = np.zeros(3 * k)
-y = fsolve(circuit_equations, amplitudes_guess)
+nonlinear_result = fsolve(circuit_equations, amplitudes_guess)
 
-X_va = y[:k]
-X_vb = y[k: 2 * k]
-X_vc = y[2 * k: 3 * k]
+X_va = nonlinear_result[:k]
+X_vb = nonlinear_result[k: 2 * k]
+X_vc = nonlinear_result[2 * k: 3 * k]
 X_c1 = (C1 * omega) @ X_vb
 
 # n = int(1 / f2)
