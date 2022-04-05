@@ -98,12 +98,12 @@ for t in np.delete(t_sim, 0):
     result_ic1.append(ic10)
     result_ic2.append(ic20)
 
-plt.plot(t_sim, nonlinear_element)
-plt.title('Tensão no Capacitor 1')
-plt.ylabel('(V)')
-plt.xlabel('Tempo (mili segundos)')
-plt.grid()
-plt.show()
+# plt.plot(t_sim, nonlinear_element)
+# plt.title('Tensão no Capacitor 1')
+# plt.ylabel('(V)')
+# plt.xlabel('Tempo (mili segundos)')
+# plt.grid()
+# plt.show()
 ###
 # plt.plot (t_plot, result_vc2)
 # plt.title ('Tensão no Capacitor 2')
