@@ -5,7 +5,7 @@ from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error
 
-from Ex7_PAC_HB import X_va, X_vb, X_vc, h1, k
+from Ex7_PAC_HB_nonlinear import X_va, h1, k
 from Ex3_transien_nonlinear_circuit import nonlinear_element as nonlinear_element_transient
 
 """
@@ -22,9 +22,9 @@ C2 = 1 * 10 ** -6
 R1 = 1 * 10 ** 3
 RL = 50
 f1 = 1 * 10 ** 9
-w1 = 2 * pi * f1
+w1 = 1
 f2 = 1.1 * 10 ** 9
-w2 = 2 * pi * f2
+w2 = 2
 Vm1 = 5
 Vm2 = 3
 h2 = int(h1 / 2)
@@ -40,25 +40,27 @@ gamma_inv = np.array([[1] + [f(2 * pi * i * (j + 1) / k) for j in range(h1) for 
 gamma = inv(gamma_inv)
 
 # omega_2tons matrix
-
-omega_2tons = np.zeros((2 * k, 2 * k))
+omega_2tons = np.zeros((k2, k2))
 position_omega_vector = 0
-for h in range(-h1, h1 + 1, 1):
+for h in np.arange(-h2, h2 + 1, 1):
     omega_2tons[2 * position_omega_vector + 1, 2 * position_omega_vector] = - (w2 + h * w1)
     omega_2tons[2 * position_omega_vector, 2 * position_omega_vector + 1] = (w2 + h * w1)
     position_omega_vector += 1
 
 # creating G_1tom (first matrix in right hand of (22))
 non_linear = gamma_inv @ X_va
+
 g_1tom = gamma @ ((0.1 * np.sign(non_linear)) / ((1 + (1.8 / abs(non_linear)) ** 5) ** (1 / 5)))
-print(g_1tom)
-G_1tom = np.zeros((k1, k1))
-for i in range(k1):
+for p in np.delete(range(len(g_1tom)), 0):
+    g_1tom[p] = g_1tom[p]/2
+
+G_1tom = np.zeros((k2, k2))
+for i in range(k2):
     if i % 2 == 0:
         r1 = range(i, -1, -1)
-        r2 = range(i + 2, k1)
+        r2 = range(i + 2, k2)
     else:
-        r1 = range(i, k1)
+        r1 = range(i, k2)
         r2 = range(i-2, -1, -1)
 
     for (n, j) in enumerate(r1):
@@ -76,7 +78,6 @@ def hb_lin(v):
     Va = np.zeros(k2)
     Vb = np.zeros(k2)
     Vc = np.zeros(k2)
-
     for j in range(k2):
         Va[j] = v[j]
         Vb[j] = v[k2 + j]
@@ -103,6 +104,7 @@ X_vb = linear_result[k2: 2 * k2]
 X_vc = linear_result[2 * k2: 3 * k2]
 X_c1 = (C1 * omega_2tons) @ X_vb
 
+
 # n = int(1 / f2)
 # (t_sim, deltat) = np.linspace(0, 5 * (1 / f1), n, retstep=True)
 deltat = 1 / (100 * f1)
@@ -114,6 +116,7 @@ results_vc = []
 nonlinear_element = []
 
 # waveforms of HB
+
 for t in t_sim:
     sinandcos = np.array([f((w2 + j * w1) * t) for j in range(-h2, h2 + 1, 1) for f in (sin, cos)])
     Va_time = sinandcos @ X_va
