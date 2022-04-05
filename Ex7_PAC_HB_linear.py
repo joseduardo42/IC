@@ -27,16 +27,15 @@ f2 = 1.1 * 10 ** 9
 w2 = 2 * pi * f2
 Vm1 = 5
 Vm2 = 3
-k1 = 2 * k
-h2 = 8
-k2 = 2 * h2 + 1
-
+h2 = int(h1 / 2)
+k2 = 2 * (2 * h2 + 1)
 T1 = (1 / f1)
 T = (1 / f2)
 
 # frequency -> time (F = gamma_inv)
 gamma_inv = np.array([[1] + [f(2 * pi * i * (j + 1) / k) for j in range(h1) for f in (sin, cos)] for i in
                       range(k)])
+
 # time -> frequency (F⁻¹ = gamma)
 gamma = inv(gamma_inv)
 
@@ -96,12 +95,12 @@ def hb_lin(v):
     ])
 
 
-amplitudes_guess = np.zeros(3 * k)
-y = fsolve(hb_lin, amplitudes_guess)
+amplitudes_guess = np.zeros(3 * k2)
+linear_result = fsolve(hb_lin, amplitudes_guess)
 
-X_va = y[:k]
-X_vb = y[k: 2 * k]
-X_vc = y[2 * k: 3 * k]
+X_va = linear_result[:k2]
+X_vb = linear_result[k2: 2 * k2]
+X_vc = linear_result[2 * k2: 3 * k2]
 X_c1 = (C1 * omega_2tons) @ X_vb
 
 # n = int(1 / f2)
@@ -116,7 +115,7 @@ nonlinear_element = []
 
 # waveforms of HB
 for t in t_sim:
-    sinandcos = np.array([1] + [f(w2 + j * w1 * t) for j in range(-h1, h1, 1) for f in (sin, cos)])
+    sinandcos = np.array([f((w2 + j * w1) * t) for j in range(-h2, h2 + 1, 1) for f in (sin, cos)])
     Va_time = sinandcos @ X_va
     Vb_time = sinandcos @ X_vb
     Vc_time = sinandcos @ X_vc
@@ -130,12 +129,13 @@ for t in t_sim:
 MSE = mean_squared_error(nonlinear_element, nonlinear_element_transient)
 print(MSE)
 
-# plt.plot(t_sim, nonlinear_element, label='HB')
-# plt.legend(loc="upper right")
-# plt.plot(t_sim, nonlinear_element_transient, label='Transitório')
-# plt.legend(loc="upper right")
-# plt.title('Corrente da fonte controlada')
-# plt.ylabel('(A)')
-# plt.xlabel('Tempo (mili segundos)')
-# plt.grid()
-# plt.show()
+plt.plot(t_sim, nonlinear_element, label='HB')
+plt.legend(loc="upper right")
+plt.plot(t_sim, nonlinear_element_transient, label='Transitório')
+plt.legend(loc="upper right")
+plt.title('Corrente da fonte controlada')
+plt.ylabel('(A)')
+plt.xlabel('Tempo (mili segundos)')
+plt.grid()
+plt.show()
+
