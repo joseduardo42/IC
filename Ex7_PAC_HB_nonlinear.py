@@ -82,7 +82,7 @@ nonlinear_element = []
 
 # waveforms of HB
 for t in t_sim:
-    sinandcos = np.array([1] + [f(w1 * (j + 1) * t) for j in range(h) for f in (sin, cos)])
+    sinandcos = np.array([1] + [f(w1 * (j + 1) * t) for j in range(h1) for f in (sin, cos)])
     Va_time = sinandcos @ X_va
     Vb_time = sinandcos @ X_vb
     Vc_time = sinandcos @ X_vc
