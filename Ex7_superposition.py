@@ -15,7 +15,7 @@ w1 = 2 * pi * f1
 f2 = 1.1 * 10 ** 9
 w2 = 2 * pi * f2
 Vm1 = 5
-Vm2 = 0.6
+Vm2 = 0.2
 h2 = int(h1 / 2)
 k2 = 2 * (2 * h2 + 1)
 T1 = (1 / f1)
@@ -28,14 +28,14 @@ nonlinear_element = []
 
 deltat = 1 / (100 * f1)
 t_sim = np.arange(0, 10 * 1/f1 + deltat, deltat)
-print(2)
 for t in t_sim:
     sinandcos_lin = np.array([f((w2 + j * w1) * t) for j in range(-h2, h2 + 1, 1) for f in (sin, cos)])
-    sinandcos_nonlin = np.array([1] + [f(w1 * (j + 1) * t) for j in range(h1) for f in (sin, cos)])
+    sinandcos_nonlin = np.array([1] + [f((w1 * (j + 1)) * t) for j in range(h1) for f in (sin, cos)])
     Va_time = sinandcos_nonlin @ x1_1tom + sinandcos_lin @ x1_lin
-    Vb_time = sinandcos_nonlin @ x2_1tom + sinandcos_lin @ x1_lin
-    Vc_time = sinandcos_nonlin @ x3_1tom + sinandcos_lin @ x1_lin
+    Vb_time = sinandcos_nonlin @ x2_1tom + sinandcos_lin @ x2_lin
+    Vc_time = sinandcos_nonlin @ x3_1tom + sinandcos_lin @ x3_lin
     Vc1_time = sinandcos_nonlin @ X_c1_1tom + sinandcos_lin @ X_c1_lin
+
     dependent_source = Vc_time / RL + Vb_time / R1 + Vc1_time
 
     results_va.append(Va_time)

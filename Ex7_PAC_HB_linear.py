@@ -26,7 +26,7 @@ w1 = 2 * pi * f1
 f2 = 1.1 * 10 ** 9
 w2 = 2 * pi * f2
 Vm1 = 5
-Vm2 = 0.6
+Vm2 = 0.2
 h2 = int(h1 / 2)
 k2 = 2 * (2 * h2 + 1)
 T1 = (1 / f1)
@@ -85,7 +85,7 @@ def hb_lin(v):
 
     # definition of amplitude source and Va in time-domain
     A_amplitude = np.zeros(k2)
-    A_amplitude[1] = Vm2
+    A_amplitude[h1 + 1] = Vm2
     vc2 = Vb - Vc
 
     return np.concatenate([
@@ -98,7 +98,7 @@ def hb_lin(v):
 
 amplitudes_guess = np.zeros(3 * k2)
 linear_result = fsolve(hb_lin, amplitudes_guess)
-
+print(linear_result)
 x1_lin = linear_result[:k2]
 x2_lin = linear_result[k2: 2 * k2]
 x3_lin = linear_result[2 * k2: 3 * k2]

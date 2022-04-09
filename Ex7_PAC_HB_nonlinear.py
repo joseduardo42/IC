@@ -18,8 +18,8 @@ w1 = 2 * pi * f1
 f2 = 1.1 * 10 ** 9
 w2 = 2 * pi * f2
 Vm1 = 5
-Vm2 = 3
-h1 = 8
+Vm2 = 0.2
+h1 = 16
 k = 2 * h1 + 1
 
 # frequency -> time (F = gamma_inv)
@@ -72,13 +72,13 @@ X_c1_1tom = (C1 * omega) @ x2_1tom
 
 # n = int(1 / f2)
 # (t_sim, deltat) = np.linspace(0, 5 * (1 / f1), n, retstep=True)
-deltat = 1 / (100 * f1)
-t_sim = np.arange(0, 10 * 1/f1 + deltat, deltat)
+# deltat = 1 / (100 * f1)
+# t_sim = np.arange(0, 10 * 1/f1 + deltat, deltat)
 
-results_va = []
-results_vb = []
-results_vc = []
-nonlinear_element = []
+# results_va = []
+# results_vb = []
+# results_vc = []
+# nonlinear_element = []
 
 # # waveforms of HB
 # for t in t_sim:
