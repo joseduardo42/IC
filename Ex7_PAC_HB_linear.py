@@ -26,7 +26,7 @@ w1 = 2 * pi * f1
 f2 = 1.1 * 10 ** 9
 w2 = 2 * pi * f2
 Vm1 = 5
-Vm2 = 0.6
+Vm2 = 0.2
 h2 = int(h1 / 2)
 k2 = 2 * (2 * h2 + 1)
 T1 = (1 / f1)
@@ -85,7 +85,7 @@ def hb_lin(v):
 
     # definition of amplitude source and Va in time-domain
     A_amplitude = np.zeros(k2)
-    A_amplitude[1] = Vm2
+    A_amplitude[h1 + 1] = Vm2
     vc2 = Vb - Vc
 
     return np.concatenate([
@@ -103,42 +103,3 @@ x1_lin = linear_result[:k2]
 x2_lin = linear_result[k2: 2 * k2]
 x3_lin = linear_result[2 * k2: 3 * k2]
 X_c1_lin = (C1 * omega_2tons) @ x2_lin
-
-
-# n = int(1 / f2)
-# (t_sim, deltat) = np.linspace(0, 5 * (1 / f1), n, retstep=True)
-# deltat = 1 / (100 * f1)
-# t_sim = np.arange(0, 10 * 1 / f1 + deltat, deltat)
-
-# results_va = []
-# results_vb = []
-# results_vc = []
-# nonlinear_element = []
-
-# # waveforms of HB
-#
-# for t in t_sim:
-#     sinandcos = np.array([f((w2 + j * w1) * t) for j in range(-h2, h2 + 1, 1) for f in (sin, cos)])
-#     Va_time = sinandcos @ X_va
-#     Vb_time = sinandcos @ X_vb
-#     Vc_time = sinandcos @ X_vc
-#     dependent_source = Vc_time / RL + Vb_time / R1 + sinandcos @ X_c1
-#
-#     results_va.append(Va_time)
-#     results_vb.append(Vb_time)
-#     results_vc.append(Vc_time)
-#     nonlinear_element.append(dependent_source)
-
-# MSE = mean_squared_error(nonlinear_element, nonlinear_element_transient)
-# print(MSE)
-#
-# plt.plot(t_sim, nonlinear_element, label='HB')
-# plt.legend(loc="upper right")
-# plt.plot(t_sim, nonlinear_element_transient, label='Transitório')
-# plt.legend(loc="upper right")
-# plt.title('Corrente da fonte controlada')
-# plt.ylabel('(A)')
-# plt.xlabel('Tempo (mili segundos)')
-# plt.grid()
-# plt.show()
-

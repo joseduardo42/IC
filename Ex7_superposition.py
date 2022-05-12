@@ -15,7 +15,7 @@ w1 = 2 * pi * f1
 f2 = 1.1 * 10 ** 9
 w2 = 2 * pi * f2
 Vm1 = 5
-Vm2 = 0.6
+Vm2 = 0.2
 h2 = int(h1 / 2)
 k2 = 2 * (2 * h2 + 1)
 T1 = (1 / f1)
@@ -27,7 +27,7 @@ results_vc = []
 nonlinear_element = []
 
 deltat = 1 / (100 * f1)
-t_sim = np.arange(0, 10 * 1/f1 + deltat, deltat)
+t_sim = np.arange(0, 2 * (1/abs(f1 - f2)) + deltat, deltat)
 
 for t in t_sim:
     sinandcos_lin = np.array([f((w2 + j * w1) * t) for j in range(-h2, h2 + 1, 1) for f in (sin, cos)])
@@ -48,7 +48,7 @@ plt.plot(t_sim, nonlinear_element, label='HB')
 plt.legend(loc="upper right")
 plt.plot(t_sim, nonlinear_element_transient, label='Transitório')
 plt.legend(loc="upper right")
-plt.title('Corrente da fonte controlada')
+plt.title('Corrente da fonte controlada, linearização em torno de omega2')
 plt.ylabel('(A)')
 plt.xlabel('Tempo (mili segundos)')
 plt.grid()

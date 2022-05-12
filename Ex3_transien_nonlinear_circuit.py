@@ -61,7 +61,7 @@ Vc = Vb - Vc20
 nonlinear_element.append(((0.1 * np.sign(Va)) / ((1 + (1.8 / abs(Va)) ** 5) ** (1 / 5))))
 
 deltat = 1 / (100 * f1)
-t_sim = np.arange(0, 10 * 1/f1 + deltat, deltat)
+t_sim = np.arange(0, 2 * 1/abs(f1 - f2) + deltat, deltat)
 
 # n = int(100 * f1 / f2)
 # (t_sim, deltat) = np.linspace(0, 10 * (1 / f1), n, retstep=True)
