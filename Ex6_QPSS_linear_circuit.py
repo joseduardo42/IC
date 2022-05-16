@@ -68,8 +68,6 @@ for h in range(4, 5):
         ################## transient (5) #####################
 
         for i in range(n_unknows):
-            # print (i)
-
             n = int(10 * f1 / f2)
             (t_sim, deltat) = np.linspace(i * (T / (2 * h + 1)), i * (T / (2 * h + 1)) + T1, n, retstep=True)
 
@@ -88,7 +86,9 @@ for h in range(4, 5):
             z = linalg.solve(A1, b)  # solution of system in z
 
             i0 = float(z[4])
-            print(i0)
+
+            global Va, Vb, Vc
+
             for t in np.delete(t_sim, 0):
                 vs = Vm1 * np.sin(2 * pi * f1 * t) + Vm2 * np.sin(2 * pi * f2 * t)  # voltage source
 
@@ -104,21 +104,20 @@ for h in range(4, 5):
                 z = linalg.solve(a2, b)  # solution of system in z
 
                 # node voltages
-                va_t = float(z[0])
-                vb_t = float(z[1])
-                vc_t = float(z[2])
+                Va = float(z[0])
+                Vb = float(z[1])
+                Vc = float(z[2])
                 # source current
                 i_s = float(z[3])
                 # capacitor current
                 i0 = float(z[4])
-                # print (va_t, vb_t, vc_t, i0)
                 # capacitor voltage
-                vc0 = vb_t - vc_t
+                vc0 = Vb - Vc
 
             # transient results
-            transient_Va[i] = va_t
-            transient_Vb[i] = vb_t
-            transient_Vc[i] = vc_t
+            transient_Va[i] = Va
+            transient_Vb[i] = Vb
+            transient_Vc[i] = Vc
             transient_is[i] = i_s
             transient_ic[i] = i0
 
@@ -139,24 +138,20 @@ for h in range(4, 5):
     resnorm = sum(y[1]['fvec'] ** 2)
     if resnorm > final_resnorm:
         final_resnorm = resnorm
-    # print(final_resnorm)
-    # print (final_resnorm)
 
     Y = gamma @ (y[0][n_unknows:2 * n_unknows] - y[0][2 * n_unknows:3 * n_unknows])
 
-    print(y[0][n_unknows:2 * n_unknows] - y[0][2 * n_unknows:3 * n_unknows], Y)
-
-    t_sim = np.array([i * T1 for i in range(int(f1 / f2) + 1)])
+    t_sim_waveform = np.array([i * T1 for i in range(int(f1 / f2) + 1)])
 
     results_vc = []
 
-    for t in t_sim:
-        sinandcos = np.array([1] + [f(w2 * (j + 1) * t) for j in range(h) for f in (sin, cos)])
+    for t_waveform in t_sim_waveform:
+        sinandcos = np.array([1] + [f(w2 * (j + 1) * t_waveform) for j in range(h) for f in (sin, cos)])
         Vc_time = Y @ sinandcos
         results_vc.append(Vc_time)
 
     # plot results
-    plt.plot(t_sim, results_vc, "ob", label=f'H = {h}')
+    plt.plot(t_sim_waveform, results_vc, "ob", label=f'H = {h}')
     plt.plot(t_sim_trans, result_vc_trans)
     plt.title('Tensão no capacitor')
     plt.ylabel('(V)')

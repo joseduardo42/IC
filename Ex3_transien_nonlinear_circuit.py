@@ -19,7 +19,8 @@ Vc20 = -76.95672331
 f1 = 1 * 10 ** 9
 f2 = 1.1 * 10 ** 9
 # deltat = 1 / (100 * f)
-A = 100
+Vm1 = 5
+Vm2 = 0.2
 C1 = 10 ** (-11)
 C2 = 10 ** (-6)
 
@@ -55,18 +56,18 @@ result_ic1.append(ic10)
 result_ic2.append(ic20)
 
 # notal tensions to the new interation
-Va = A * np.sin(2 * pi * f1 * 0)
+Va = Vm1 * np.sin(2 * pi * f1 * 0) + Vm2 * np.sin(2 * pi * f2 * 0)
 Vb = Vc10
 Vc = Vb - Vc20
 nonlinear_element.append(((0.1 * np.sign(Va)) / ((1 + (1.8 / abs(Va)) ** 5) ** (1 / 5))))
 
 deltat = 1 / (100 * f1)
-t_sim = np.arange(0, 2 * 1/abs(f1 - f2) + deltat, deltat)
+t_sim = np.arange(0, 1 * 1/abs(f1 - f2) + deltat, deltat)
 
 # n = int(100 * f1 / f2)
 # (t_sim, deltat) = np.linspace(0, 10 * (1 / f1), n, retstep=True)
 for t in np.delete(t_sim, 0):
-    Vs = A * np.sin(2 * pi * f1 * t)  # voltage in source in actual time
+    Vs = Vm1 * np.sin(2 * pi * f1 * t) + Vm2 * np.sin(2 * pi * f2 * t)  # voltage in source in actual time
 
     # system of nodal analysis to solve in actual time
     def func(x):

@@ -27,7 +27,7 @@ results_vc = []
 nonlinear_element = []
 
 deltat = 1 / (100 * f1)
-t_sim = np.arange(0, 2 * (1/abs(f1 - f2)) + deltat, deltat)
+t_sim = np.arange(0, 1 * (1/abs(f1 - f2)) + deltat, deltat)
 
 for t in t_sim:
     sinandcos_lin = np.array([f((w2 + j * w1) * t) for j in range(-h2, h2 + 1, 1) for f in (sin, cos)])

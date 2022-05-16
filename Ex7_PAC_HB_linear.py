@@ -85,7 +85,7 @@ def hb_lin(v):
 
     # definition of amplitude source and Va in time-domain
     A_amplitude = np.zeros(k2)
-    A_amplitude[h1 + 1] = Vm2
+    A_amplitude[1] = Vm2
     vc2 = Vb - Vc
 
     return np.concatenate([
