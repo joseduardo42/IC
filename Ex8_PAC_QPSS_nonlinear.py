@@ -3,21 +3,20 @@ from numpy import linalg, pi
 import matplotlib.pyplot as plt
 from math import sin, cos, pi
 from scipy.optimize.minpack import fsolve
-from Ex2_transient_analysis_linear_circuit_2tones import t_sim_trans, result_vc_trans
+from Ex3_transien_nonlinear_circuit import t_sim, result_vc1_transi
 
 # ICs
 C1 = 10 * 10 ** -12
 C2 = 1 * 10 ** -6
 R1 = 1 * 10 ** 3
 RL = 50
-f1 = 1 * 10 ** 9
-w1 = 2 * pi * f1
 f2 = 1.1 * 10 ** 9
+f1 = 1 * 10 ** 9
+w1 = 2 * pi * f1 
 w2 = 2 * pi * f2
 Vm1 = 5
 Vm2 = 0.2
 h1 = 2
-k = 2 * h1 + 1
 final_resnorm = 0
 
 T1 = (1 / f1)
@@ -44,14 +43,12 @@ for h in range(2, 3):
     shooting_Va = np.zeros(k)
     shooting_Vb = np.zeros(k)
     shooting_Vc = np.zeros(k)
-    shooting_is = np.zeros(k)
     shooting_ic1 = np.zeros(k)
     shooting_ic2 = np.zeros(k)
 
     transient_Va = np.zeros(k)
     transient_Vb = np.zeros(k)
     transient_Vc = np.zeros(k)
-    transient_is = np.zeros(k)
     transient_ic1 = np.zeros(k)
     transient_ic2 = np.zeros(k)
 
@@ -64,8 +61,7 @@ for h in range(2, 3):
             shooting_Va[i] = shooting_tension[i]
             shooting_Vb[i] = shooting_tension[k + i]
             shooting_Vc[i] = shooting_tension[2 * k + i]
-            shooting_is[i] = shooting_tension[3 * k + i]
-            shooting_ic1[i] = shooting_tension[4 * k + i]
+            shooting_ic1[i] = shooting_tension[3 * k + i]
             shooting_ic2[i] = shooting_tension[4 * k + i]
 
         ################## shooting #####################
@@ -73,13 +69,14 @@ for h in range(2, 3):
 
         for i in range(k):
 
-            n = int(10 * f1 / f2)
+            n = int(100 * f1 / f2)
             (t_sim, deltat) = np.linspace(i * (T / k), i * (T / k) + T1, n, retstep=True)
 
-            vs = Vm1 * np.sin(2 * pi * f1 * t_sim[0])
+            vs = Vm1 * np.sin(2 * pi * f1 * t_sim[0]) + Vm2 * np.sin(2 * pi * f2 * t_sim[0])
 
             Vc10 = shooting_Vb[i]
             Vc20 = shooting_Vb[i] - shooting_Vc[i]
+            shooting_Va[i] = vs
 
             # system of nodal analysis to solve in actual time
             def func(x):
@@ -87,31 +84,22 @@ for h in range(2, 3):
                 if shooting_Va[i] == 0:
                     i_fnl = 0
                 else:
-                    i_fnl = ((0.1 * np.sign(x[0])) / ((1 + (1.8 / abs(x[0])) ** 5) ** (1 / 5)))
+                    i_fnl = ((0.1 * np.sign(shooting_Va[i])) / ((1 + (1.8 / abs(shooting_Va[i])) ** 5) ** (1 / 5)))
 
-                return [shooting_Va[i] - vs,
-                        i_fnl - shooting_Vb[i] / R1
-                        - Vc10 - (x[1] - x[2]),
-                        Vc20 - x[2] / RL]
+                return [
+                        (i_fnl - x[0]) * R1,
+                        (x[0] - i_fnl) * R1 + Vc20 + x[1] * RL]
 
             initial_conditions = fsolve(func, np.array(
-                [shooting_Va[i], shooting_Vb[i], shooting_Vc[i]]))  # solving the system of nonlinear equations in t
+                [0, 0]))  # solving the system of nonlinear equations in t
 
-            Va = float(initial_conditions[0])
-            Vb = float(initial_conditions[1])
-            Vc = float(initial_conditions[2])
 
-            if Va == 0:
-                ifnl = 0
-            else:
-                ifnl = ((0.1 * np.sign(Va)) / ((1 + (1.8 / abs(Va)) ** 5) ** (1 / 5)))
+            ic10 = float(initial_conditions[0] - float(initial_conditions[1]))
 
-            ic10 = ifnl - Vb / R1 - Vc / RL
-
-            ic20 = Vc / RL
+            ic20 = float(initial_conditions[1])
 
             for t in np.delete(t_sim, 0):
-                vs = Vm1 * np.sin(2 * pi * f1 * t)
+                vs = Vm1 * np.sin(2 * pi * f1 * t) + Vm2 * np.sin(2 * pi * f2 * t)
 
                 # system of nodal analysis to solve in actual time
                 def func(x):
@@ -128,7 +116,7 @@ for h in range(2, 3):
                             -((2 * C2 / deltat) * ((x[1] - x[2]) - Vc20) - ic20) + x[2] / RL]
 
                 z = fsolve(func, np.array(
-                    [Va, Vb, Vc]))  # solving the system of nonlinear equations in t
+                    [0, 0, 0]))  # solving the system of nonlinear equations in t
 
                 # node voltages
                 Va = float(z[0])
@@ -136,7 +124,7 @@ for h in range(2, 3):
                 Vc = float(z[2])
 
                 # capacitor current
-                ic10 = ((2 * C1 / deltat) * (Va - Vc10) - ic10)
+                ic10 = ((2 * C1 / deltat) * (Vb - Vc10) - ic10)
                 ic20 = ((2 * C1 / deltat) * ((Vb - Vc) - Vc10) - ic10)
 
                 # capacitor voltage
@@ -155,7 +143,7 @@ for h in range(2, 3):
             transient_Vb - D @ shooting_Vb,
             transient_Vc - D @ shooting_Vc,
             transient_ic1 - D @ shooting_ic1,
-            transient_ic1 - D @ shooting_ic2
+            transient_ic2 - D @ shooting_ic2
         ])
 
 
@@ -170,10 +158,10 @@ for h in range(2, 3):
     # print(final_resnorm)
     # print (final_resnorm)
 
-    Y = gamma @ (y[0][k:2 * k] - y[0][2 * k:3 * k])
+    Y = gamma @ (y[0][k:2 * k])
 
     t_sim_waveform = np.array([i * T1 for i in range(int(f1 / f2) + 1)])
-
+    print(t_sim_waveform)
     results_vc = []
 
     for t_waveform in t_sim_waveform:
@@ -183,7 +171,7 @@ for h in range(2, 3):
 
     # plot results
     plt.plot(t_sim_waveform, results_vc, "ob", label=f'H = {h}')
-    plt.plot(t_sim_trans, result_vc_trans)
+    plt.plot(t_sim, result_vc1_transi)
     plt.title('Tensão no capacitor')
     plt.ylabel('(V)')
     plt.xlabel('Tempo (segundos)')
