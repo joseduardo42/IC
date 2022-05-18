@@ -13,8 +13,8 @@ The simulation depends on previous conditions in each new interation
 # inserir as CIs
 Ra = 10 ** 3
 RL = 50
-Vc10 = -73.29215789
-Vc20 = -76.95672331
+Vc10 = -1.96951566e+00
+Vc20 = -1.89360449e-06
 # fonte do Ex1
 f1 = 1 * 10 ** 9
 f2 = 1.1 * 10 ** 9
@@ -62,7 +62,7 @@ Vc = Vb - Vc20
 nonlinear_element.append(((0.1 * np.sign(Va)) / ((1 + (1.8 / abs(Va)) ** 5) ** (1 / 5))))
 
 deltat = 1 / (100 * f1)
-t_sim = np.arange(0, 1 * 1/abs(f1 - f2) + deltat, deltat)
+t_sim = np.arange(0, 1 * 1/abs(f1) + deltat, deltat)
 
 # n = int(100 * f1 / f2)
 # (t_sim, deltat) = np.linspace(0, 10 * (1 / f1), n, retstep=True)

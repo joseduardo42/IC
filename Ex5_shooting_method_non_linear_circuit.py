@@ -2,7 +2,7 @@ import numpy as np
 from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
 from math import pi
-from Ex3_transien_nonlinear_circuit import t_plot__aux, result_vc1_transi, aux, result_vc2_transi
+# from Ex3_transien_nonlinear_circuit import t_plot__aux, result_vc1_transi, aux, result_vc2_transi
 
 """
 This code have as objective the shooting method analysis of a non linear
@@ -18,8 +18,8 @@ RL = 50
 C1 = 10 ** (-11)
 C2 = 10 ** (-6)
 # Ativ1 source
-f = 15.9155
-A = 100
+f = 1 * 10 ** 9
+A = 5
 deltat = 1 / (100 * f)
 tf = (1 / f)
 final_resnorm = 0
@@ -76,10 +76,6 @@ def shooting_method_non_linear(z):
 
         y = fsolve(func, [Va, Vb, Vc], full_output=True)
 
-        # resnorm internal fsolve
-        resnorm = sum(y[1]['fvec'] ** 2)
-        if resnorm > final_resnorm:
-            final_resnorm = resnorm
 
         # initial guess for the next interaction
         Va = float(y[0][0])
@@ -105,17 +101,11 @@ def shooting_method_non_linear(z):
 
 
 # solving shooting method
-sm_nonlin_result = fsolve(shooting_method_non_linear, [0, 0], full_output=True)
-
-# resnorm external fsolve
-resnorm = sum(sm_nonlin_result[1]['fvec'] ** 2)
-if resnorm > final_resnorm:
-    final_resnorm = resnorm
-print(final_resnorm)
-
+sm_nonlin_result = fsolve(shooting_method_non_linear, [0, 0])
+print(sm_nonlin_result)
 # plotting 1 cycle of transient in C1
 plt.plot(t_plot, result_vc1)
-plt.plot(t_plot__aux, result_vc1_transi[-aux:])
+#plt.plot(t_plot__aux, result_vc1_transi[-aux:])
 plt.title('Tensão no capacitor 1')
 plt.ylabel('Tensão no capacitor 1 (V)')
 plt.xlabel('Tempo (segundos)')
