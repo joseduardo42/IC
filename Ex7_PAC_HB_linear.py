@@ -98,7 +98,7 @@ def hb_lin(v):
 
 amplitudes_guess = np.zeros(3 * k2)
 linear_result = fsolve(hb_lin, amplitudes_guess)
-print(linear_result)
+
 x1_lin = linear_result[:k2]
 x2_lin = linear_result[k2: 2 * k2]
 x3_lin = linear_result[2 * k2: 3 * k2]

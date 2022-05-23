@@ -3,7 +3,7 @@ from numpy import linalg, pi
 import matplotlib.pyplot as plt
 from math import sin, cos, pi
 from scipy.optimize.minpack import fsolve
-from Ex2_transient_analysis_linear_circuit_2tones import t_sim_trans, result_vc_trans
+from Ex2_transient_analysis_linear_circuit_2tones import t_plot, result_vc_trans
 
 # ICs
 R1 = 1
@@ -152,7 +152,7 @@ for h in range(4, 5):
 
     # plot results
     plt.plot(t_sim_waveform, results_vc, "ob", label=f'H = {h}')
-    plt.plot(t_sim_trans, result_vc_trans)
+    plt.plot(t_plot, result_vc_trans)
     plt.title('Tensão no capacitor')
     plt.ylabel('(V)')
     plt.xlabel('Tempo (segundos)')
