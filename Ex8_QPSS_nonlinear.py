@@ -18,7 +18,6 @@ w2 = 2 * pi * f2
 Vm1 = 5
 Vm2 = 0.2
 h1 = 5
-final_resnorm = 0
 
 T1 = (1 / f1)
 T = (1 / f2)
@@ -51,21 +50,16 @@ for h in range(1, 2):
     transient_Vc = np.zeros(k)    
 
     def qpss(shooting_voltage):
-        results_transient = []
-        print(shooting_voltage)
+        
         for i in range(k):
-
             
             N = k1
-            (t_sim, deltat) = np.linspace(i * (T_nl / k), i * (T_nl / k) + T1_nl, N, retstep=True)
-            
-            
+            (t_sim, deltat) = np.linspace(i * (T_nl / k), i * (T_nl / k) + T1_nl, N, retstep=True)            
             
             Va = Vm1 * np.sin(2 * pi * f1 * t_sim[0]) + Vm2 * np.sin(2 * pi * f2 * t_sim[0])
     
             Vc10 = shooting_voltage[i]
             Vc20 = shooting_voltage[i] - shooting_voltage[k + i]
-            results_transient.append(shooting_Vb[i])
 
             # system of nodal analysis to solve in actual time
             def func(x):
@@ -120,9 +114,6 @@ for h in range(1, 2):
                 
                 transient_Vb[i] = Vb
                 transient_Vc[i] = Vc
-
-                results_transient.append(Vc10)
-
         
         return np.concatenate([
             
@@ -134,10 +125,8 @@ for h in range(1, 2):
 
     # solve qpss function
     amplitudes_guess = np.ones(2*k)
-
     y = fsolve(qpss, amplitudes_guess)
 
-    # resnorm external fsolve
 
     t_sim_QPSS = np.array([i * (T_nl / k) for i in range(k)])
 
