@@ -2,7 +2,6 @@ import numpy as np
 from numpy import pi, cos, sin
 import matplotlib.pyplot as plt
 from Ex7_PAC_HB_linear import x1_lin, x2_lin, x3_lin, X_c1_lin
-from Ex3_transien_nonlinear_circuit import nonlinear_element as nonlinear_element_transient
 from Ex7_PAC_HB_nonlinear import x1_1tom, x2_1tom, x3_1tom, X_c1_1tom, h1
 
 # params
@@ -12,7 +11,7 @@ R1 = 1 * 10 ** 3
 RL = 50
 f1 = 1 * 10 ** 9
 w1 = 2 * pi * f1
-f2 = 1.1 * 10 ** 9
+f2 = 1.01 * 10 ** 9
 w2 = 2 * pi * f2
 Vm1 = 5
 Vm2 = 0.2
@@ -33,8 +32,8 @@ for t in t_sim:
     sinandcos_lin = np.array([f((w2 + j * w1) * t) for j in range(-h2, h2 + 1, 1) for f in (sin, cos)])
     sinandcos_nonlin = np.array([1] + [f(w1 * (j + 1) * t) for j in range(h1) for f in (sin, cos)])
     Va_time = sinandcos_nonlin @ x1_1tom + sinandcos_lin @ x1_lin
-    Vb_time = sinandcos_nonlin @ x2_1tom + sinandcos_lin @ x1_lin
-    Vc_time = sinandcos_nonlin @ x3_1tom + sinandcos_lin @ x1_lin
+    Vb_time = sinandcos_nonlin @ x2_1tom + sinandcos_lin @ x2_lin
+    Vc_time = sinandcos_nonlin @ x3_1tom + sinandcos_lin @ x3_lin
     Vc1_time = sinandcos_nonlin @ X_c1_1tom + sinandcos_lin @ X_c1_lin
     dependent_source = Vc_time / RL + Vb_time / R1 + Vc1_time
 
@@ -44,12 +43,10 @@ for t in t_sim:
     nonlinear_element.append(dependent_source)
 
 # plot results
-#plt.plot(t_sim, nonlinear_element, label='HB')
+#plt.plot(t_sim, results_vb, label='HB')
 #plt.legend(loc="upper right")
-#plt.plot(t_sim, nonlinear_element_transient, label='Transitório')
-#plt.legend(loc="upper right")
-#plt.title('Corrente da fonte controlada, linearização em torno de omega2')
-#plt.ylabel('(A)')
+#plt.title('Tensão em Vb, linearização em torno de omega1 (fA no QPSS)')
+#plt.ylabel('(V)')
 #plt.xlabel('Tempo (mili segundos)')
 #plt.grid()
 #plt.show()

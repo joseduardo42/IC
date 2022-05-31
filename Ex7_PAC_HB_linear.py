@@ -3,10 +3,10 @@ import numpy as np
 from numpy.linalg import inv
 from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
-from sklearn.metrics import mean_squared_error
+
 
 from Ex7_PAC_HB_nonlinear import h1, k, x1_1tom
-from Ex3_transien_nonlinear_circuit import nonlinear_element as nonlinear_element_transient
+
 
 """
 This code have as objective the harmonic balance analysis of a non linear
@@ -20,10 +20,10 @@ harmonic balance
 C1 = 10 * 10 ** -12
 C2 = 1 * 10 ** -6
 R1 = 1 * 10 ** 3
-RL = 50
-f1 = 1 * 10 ** 9
+RL = 50.0
+f1 = 1.01 * 10 ** 9
 w1 = 2 * pi * f1
-f2 = 1.1 * 10 ** 9
+f2 = 1 * 10 ** 9
 w2 = 2 * pi * f2
 Vm1 = 5
 Vm2 = 0.2

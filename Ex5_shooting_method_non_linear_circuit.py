@@ -15,7 +15,7 @@ shooting method, so the transient is the steady-state
 # ICs
 Ra = 10 ** 3
 RL = 50
-C1 = 10 ** (-11)
+C1 = 10 * 10 ** (-12)
 C2 = 10 ** (-6)
 # Ativ1 source
 f = 1 * 10 ** 9

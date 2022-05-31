@@ -13,20 +13,23 @@ The simulation depends on previous conditions in each new interation
 # inserir as CIs
 Ra = 10 ** 3
 RL = 50
-Vc10 = -1.96951566e+00
-Vc20 = -1.89360449e-06
+Vc10 = -2.0712890025061808
+Vc20 = -2.0712890025061808 - -2.0712881803643697
 # fonte do Ex1
-f1 = 1 * 10 ** 9
-f2 = 1.1 * 10 ** 9
+f1 = 1.0 * 10 ** 9
+f2 = 1.01 * 10 ** 9
 # deltat = 1 / (100 * f)
-Vm1 = 5
-Vm2 = 0.2
-C1 = 10 ** (-11)
-C2 = 10 ** (-6)
+Vm1 = 5.0
+Vm2 = 4
+C1 = 10 * 10 ** (-12)
+C2 = 1 *  10 ** (-6)
 
-n = int(100 * f1 / f2)
-(t_sim, deltat) = np.linspace(10 * (1 / abs(f1 - f2)), 12 * (1 / abs(f1 - f2)), n, retstep=True)
-(t_plot, deltat1) = np.linspace(0, 2 * (1 / abs(f1 - f2)), n, retstep=True)
+T1_nl = (1/(abs(f1 + f2)/2))
+k1 = 2 * 10000 + 1
+
+N = int(k1)
+(t_sim, deltat) = np.linspace(0, (1/abs(f1 - f2)), N, retstep=True)
+
 
 result_vc1_transi = []  # vector to storage the voltage at capacitor 1, to SM
 result_vc2_transi = []  # vector to storage the voltage at capacitor 1, to SM
@@ -41,7 +44,11 @@ nonlinear_element = []
 Va = Vm1 * np.sin(2 * pi * f1 * t_sim[0]) + Vm2 * np.sin(2 * pi * f2 * t_sim[0])
 Vb = Vc10
 Vc = Vb - Vc20
-nonlinear_element.append(((0.1 * np.sign(Va)) / ((1 + (1.8 / abs(Va)) ** 5) ** (1 / 5))))
+
+if  Va == 0:
+    nonlinear_element_calc = 0
+else:
+    nonlinear_element_calc = ((0.1 * np.sign(Va)) / ((1 + (1.8 / abs(Va)) ** 5) ** (1 / 5)))
 
 def func(x):
 
@@ -57,40 +64,48 @@ initial_conditions = fsolve(func, np.array(
                 [0, 0]))  # solving the system of nonlinear equations in t
 
 # correntes nos capacitores
-ic10 = float(initial_conditions[0] - float(initial_conditions[1]))
+ic10 = float(initial_conditions[0]) - float(initial_conditions[1])
 
 ic20 = float(initial_conditions[1])
 # storage the values
-result_vc1_transi.append(Vc10)
+result_vc1_transi.append(Vb)
 result_vc2_transi.append(Vc20)
 result_ic1.append(ic10)
 result_ic2.append(ic20)
 
 for t in np.delete(t_sim, 0):
+    
     Vs = Vm1 * np.sin(2 * pi * f1 * t) + Vm2 * np.sin(2 * pi * f2 * t)  # voltage in source in actual time
 
     # system of nodal analysis to solve in actual time
     def func(x):
-        return [x[0] - Vs,
-                ((0.1 * np.sign(x[0])) / ((1 + (1.8 / abs(x[0])) ** 5) ** (1 / 5))) - x[1] / Ra - (
-                        (2 * C1 / deltat) * (x[1] - Vc10) - ic10) - (
-                        (2 * C2 / deltat) * ((x[1] - x[2]) - Vc20) - ic20),
-                -((2 * C2 / deltat) * ((x[1] - x[2]) - Vc20) - ic20) + x[2] / RL]
+
+        if  Vs == 0:
+            i_fnl = 0
+        else:
+            i_fnl = ((0.1 * np.sign(Vs)) / ((1 + (1.8 / abs(Vs)) ** 5) ** (1 / 5)))
+
+            return [i_fnl * Ra - x[0] * Ra + ((deltat/(2*C1))*((x[0]-x[1]) + ic10) + Vc10),
+                    
+                    -((deltat/(2 * C1)) * ((x[0]-x[1]) + ic10) + Vc10) + ((deltat/(2*C2)) * (x[1] + ic20) + Vc20) + x[1] * RL]
 
 
-    y = fsolve(func, np.array([Va, Vb, Vc]))  # solving the system of nonlinear equations in t
+    y = fsolve(func, np.array([0, 0]))  # solving the system of nonlinear equations in t
 
     # nodal voltages
-    Va = y[0]
-    Vb = y[1]
-    Vc = y[2]
-    nonlinear_element_calc = ((0.1 * np.sign(Va)) / ((1 + (1.8 / abs(Va)) ** 5) ** (1 / 5)))
+    ic1 = y[0]
+    ic2 = y[1]
+    Vc10 = (deltat/(2*C1))*((ic1-ic2) + ic10) + Vc10
+    Vc20 = (deltat/(2*C2))*(ic2 + ic20) + Vc20
 
+    if  Vs == 0:
+        nonlinear_element_calc = 0
+    else:
+        nonlinear_element_calc = ((0.1 * np.sign(Vs)) / ((1 + (1.8 / abs(Vs)) ** 5) ** (1 / 5)))
     # previous values to next time interation
-    ic10 = ((2 * C1 / deltat) * (Vb - Vc10) - ic10)
-    ic20 = ((2 * C2 / deltat) * ((Vb - Vc) - Vc20) - ic20)
-    Vc10 = Vb
-    Vc20 = Vb - Vc
+    ic10 = ic1 - ic2
+    ic20 = ic2
+    
 
     # storage the values
     nonlinear_element.append(nonlinear_element_calc)
@@ -101,10 +116,10 @@ for t in np.delete(t_sim, 0):
 
 plt.plot(t_sim, result_vc1_transi)
 plt.title('Tensão no Capacitor 1')
-plt.ylabel('(V)')
-plt.xlabel('Tempo (mili segundos)')
-plt.grid()
-plt.show()
+#plt.ylabel('(V)')
+#plt.xlabel('Tempo (mili segundos)')
+#plt.grid()
+#plt.show()
 ###
 # plt.plot (t_plot, result_vc2)
 # plt.title ('Tensão no Capacitor 2')
