@@ -3,7 +3,6 @@ import numpy as np
 from numpy.linalg import inv
 from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
-from sklearn.metrics import mean_squared_error
 
 from Ex7_PAC_HB_nonlinear import h1, k, x1_1tom
 from Ex3_transien_nonlinear_circuit import nonlinear_element as nonlinear_element_transient
