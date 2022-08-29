@@ -13,14 +13,14 @@ The simulation depends on previous conditions in each new interation
 # inserir as CIs
 Ra = 10 ** 3
 RL = 50
-Vc10 = -2.0712890025061808
-Vc20 = -2.0712890025061808 - -2.0712881803643697
+Vc10 = -1.4524776623041016 
+Vc20 = -7.3365709507077655e-06
 # fonte do Ex1
 f1 = 1.0 * 10 ** 9
 f2 = 1.01 * 10 ** 9
 # deltat = 1 / (100 * f)
-Vm1 = 5.0
-Vm2 = 4
+Vm1 = 1
+Vm2 = 1
 C1 = 10 * 10 ** (-12)
 C2 = 1 *  10 ** (-6)
 
@@ -114,8 +114,9 @@ for t in np.delete(t_sim, 0):
     result_ic1.append(ic10)
     result_ic2.append(ic20)
 
-plt.plot(t_sim, result_vc1_transi)
-plt.title('Tensão no Capacitor 1')
+print(Vc10, Vc20)
+# plt.plot(t_sim, result_vc1_transi)
+# plt.title('Tensão no Capacitor 1')
 #plt.ylabel('(V)')
 #plt.xlabel('Tempo (mili segundos)')
 #plt.grid()

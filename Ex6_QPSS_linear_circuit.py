@@ -3,7 +3,7 @@ from numpy import linalg, pi
 import matplotlib.pyplot as plt
 from math import sin, cos, pi
 from scipy.optimize.minpack import fsolve
-from Ex2_transient_analysis_linear_circuit_2tones import t_plot, result_vc_trans
+from Ex2_transient_analysis_linear_circuit_2tones import t_sim_trans as t_plot, result_vc_trans
 
 # ICs
 R1 = 1
