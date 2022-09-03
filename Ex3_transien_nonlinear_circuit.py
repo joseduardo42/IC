@@ -13,8 +13,8 @@ The simulation depends on previous conditions in each new interation
 # inserir as CIs
 Ra = 10 ** 3
 RL = 50
-Vc10 = -1.4524776623041016 
-Vc20 = -7.3365709507077655e-06
+Vc10 = -1.452485044906209
+Vc20 = -1.4350046838156988e-05
 # fonte do Ex1
 f1 = 1.0 * 10 ** 9
 f2 = 1.01 * 10 ** 9
@@ -41,7 +41,7 @@ result_ic2 = []  # vector to storage the current at capacitor 2
 nonlinear_element = []
 
 # notal tensions to the new interation
-Va = Vm1 * np.sin(2 * pi * f1 * t_sim[0]) + Vm2 * np.sin(2 * pi * f2 * t_sim[0])
+Va = Vm1 * np.sin(2 * pi * f1 * t_sim[0]) + Vm2 * np.sin(2 * pi * f2 * t_sim[0] )
 Vb = Vc10
 Vc = Vb - Vc20
 
@@ -75,7 +75,7 @@ result_ic2.append(ic20)
 
 for t in np.delete(t_sim, 0):
     
-    Vs = Vm1 * np.sin(2 * pi * f1 * t) + Vm2 * np.sin(2 * pi * f2 * t)  # voltage in source in actual time
+    Vs = Vm1 * np.sin(2 * pi * f1 * t) + Vm2 * np.sin(2 * pi * f2 * t) # voltage in source in actual time
 
     # system of nodal analysis to solve in actual time
     def func(x):

@@ -3,6 +3,7 @@ from numpy import linalg, pi
 import matplotlib.pyplot as plt
 from math import sin, cos, pi
 from scipy.optimize.minpack import fsolve
+
 from Ex3_transien_nonlinear_circuit import result_vc1_transi, t_sim
 # ICs
 C1 = 10 * 10 ** -12
@@ -95,7 +96,6 @@ def qpss(shooting_voltage):
                             
                             -((deltat/(2 * C1)) * ((x[0]-x[1]) + ic10) + Vc10) + ((deltat/(2*C2)) * (x[1] + ic20) + Vc20) + x[1] * RL]
 
-
             y = fsolve(func, np.array([0, 0]))  # solving the system of nonlinear equations in t
 
             # nodal voltages
@@ -129,19 +129,19 @@ def qpss(shooting_voltage):
 amplitudes_guess = np.ones(2*k)
 nonlinear_result = fsolve(qpss, amplitudes_guess)
 
-x1_1tom = gamma @ shooting_Va
-x2_1tom = gamma @ nonlinear_result[:k]
-x3_1tom = gamma @ nonlinear_result[k: 2 * k]
-X_c1_1tom = gamma @ x2_1tom
+x1_1tom = shooting_Va
+x2_1tom = nonlinear_result[:k]
+x3_1tom = nonlinear_result[k: 2 * k]
+X_c1_1tom = x2_1tom
 
 t_sim_QPSS = np.array([i * (T_nl / k) for i in range(k)])
 
 # plot results
-plt.plot(t_sim, result_vc1_transi, label=f'PAC')
-plt.plot(t_sim_QPSS, nonlinear_result[:k], "ob", label=f'QPSS')
-plt.title('PAC com QPSS')
-plt.ylabel('(V)')
-plt.xlabel('Tempo (segundos)')
-plt.grid()
-plt.legend()
-plt.show()
+# plt.plot(t_sim, result_vc1_transi, label=f'PAC')
+# plt.plot(t_sim_QPSS, x2_1tom, "ob", label=f'QPSS')
+# plt.title('Tensão em Vb, linearização em torno de fB (omega2 no PAC)')
+# plt.ylabel('(V)')
+# plt.xlabel('Tempo (segundos)')
+# plt.grid()
+# plt.legend()
+# plt.show()
